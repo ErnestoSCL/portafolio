@@ -50,10 +50,11 @@
     .project-content { grid-template-columns: 1fr !important; gap: 30px !important; }
     .project-hero-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
     .project-hero-copy { max-width: 100% !important; }
+    .project-hero-shell { padding: 20px !important; }
   }
   @media (max-width: 768px) {
     nav { padding: 0 1rem !important; }
-    .project-hero { padding: 100px 6vw 44px !important; }
+    .project-hero { padding: 88px 5vw 36px !important; }
     .project-content { padding: 44px 6vw !important; }
     .project-related { padding: 30px 6vw 80px !important; }
     .project-footer { padding: 20px 6vw !important; flex-direction: column; gap: 8px; align-items: flex-start !important; }
@@ -260,9 +261,10 @@ function renderProject(p) {
     </nav>
 
     <!-- Hero -->
-    <section class="project-hero" style="padding:120px 10vw 60px;position:relative;animation:fadeUp 0.5s ease both;">
+    <section class="project-hero" style="padding:96px 6vw 52px;position:relative;animation:fadeUp 0.5s ease both;">
       <div style="position:absolute;top:10%;right:8%;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,${color}15 0%,transparent 70%);pointer-events:none;"></div>
-      <div class="project-hero-grid" style="max-width:1720px;margin:0 auto;display:grid;grid-template-columns:minmax(320px,0.9fr) minmax(700px,1.35fr);gap:40px;align-items:start;">
+      <div class="project-hero-shell" style="max-width:1560px;margin:0 auto;padding:30px;border:1px solid ${color}22;border-radius:18px;background:linear-gradient(180deg,rgba(14,20,32,.8),rgba(8,11,16,.65));box-shadow:0 20px 50px rgba(0,0,0,.25);">
+      <div class="project-hero-grid" style="display:grid;grid-template-columns:minmax(320px,0.95fr) minmax(640px,1.2fr);gap:34px;align-items:center;">
         <div class="project-hero-copy" style="max-width:760px;">
           <div style="display:flex;gap:10px;align-items:center;margin-bottom:28px;flex-wrap:wrap;">
             <span style="font-family:var(--font-mono);font-size:11px;padding:4px 12px;background:${color}18;color:${color};border-radius:999px;border:1px solid ${color}33;">${p.category}</span>
@@ -270,8 +272,8 @@ function renderProject(p) {
               <span style="width:6px;height:6px;border-radius:50%;background:currentColor;"></span>${p.status}
             </span>
           </div>
-          <h1 style="font-size:clamp(2.2rem,5vw,4rem);font-weight:700;letter-spacing:-0.02em;line-height:1.1;margin-bottom:24px;">${p.title}</h1>
-          <p style="font-size:18px;color:#94a3b8;line-height:1.75;max-width:680px;text-wrap:pretty;">${p.description}</p>
+          <h1 style="font-size:clamp(2rem,4.4vw,3.6rem);font-weight:700;letter-spacing:-0.02em;line-height:1.1;margin-bottom:20px;">${p.title}</h1>
+          <p style="font-size:18px;color:#94a3b8;line-height:1.72;max-width:620px;text-wrap:pretty;">${p.description}</p>
           
           <div style="display:flex;gap:12px;margin-top:36px;flex-wrap:wrap;">
           ${p.demo ? `<a href="${p.demo}" target="_blank" rel="noopener noreferrer"
@@ -302,8 +304,8 @@ function renderProject(p) {
         <div style="display:flex;flex-direction:column;gap:10px;">
           <div style="font-family:var(--font-mono);font-size:11px;color:${color};letter-spacing:0.12em;">GALERÍA DEL PROYECTO</div>
           <div style="display:flex;justify-content:flex-end;width:100%;">
-          <div id="${carouselId}" class="carousel-wrap" data-carousel data-images="${encodeURIComponent(JSON.stringify(images))}" data-title="${p.title}" style="width:100%;max-width:980px;">
-            <div class="carousel-stage" style="aspect-ratio:16/9;">
+          <div id="${carouselId}" class="carousel-wrap" data-carousel data-images="${encodeURIComponent(JSON.stringify(images))}" data-title="${p.title}" style="width:100%;max-width:960px;">
+            <div class="carousel-stage" style="aspect-ratio:16/8.6;">
               <div class="carousel-track">
                 ${images.map(img => `<div class="carousel-slide"><img src="${img}" alt="${p.title}"/></div>`).join('')}
               </div>
@@ -323,6 +325,7 @@ function renderProject(p) {
           </div>
         </div>
         ` : ''}
+      </div>
       </div>
     </section>
 
