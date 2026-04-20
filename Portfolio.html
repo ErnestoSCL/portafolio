@@ -679,9 +679,15 @@ function Projects({tweaks,lang}) {
 }
 
 function ProjCard({p,tweaks,see}) {
+  const slug = p.title
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
   const [h,setH]=useState(false);const cc=catColors[p.category]||tweaks.accent;
   return (
-    <a href={`project.html?id=${p.id}`} onMouseEnter={()=>setH(true)} onMouseLeave={()=>setH(false)}
+    <a href={`/${slug}`} onMouseEnter={()=>setH(true)} onMouseLeave={()=>setH(false)}
       style={{display:'block',textDecoration:'none',color:'inherit',background:h?'var(--bg4)':'var(--bg3)',border:`1px solid ${h?cc+'55':'var(--border)'}`,borderRadius:14,padding:'24px',transition:'all .25s',transform:h?'translateY(-4px)':'none',boxShadow:h?`0 12px 40px ${cc}18`:'none',position:'relative',overflow:'hidden'}}>
       <div style={{position:'absolute',top:0,left:0,right:0,height:3,background:`linear-gradient(90deg,${cc},${cc}44)`,borderRadius:'14px 14px 0 0'}}/>
       <div style={{display:'flex',justifyContent:'space-between',marginBottom:12}}>

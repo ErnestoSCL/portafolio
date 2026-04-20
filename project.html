@@ -200,7 +200,16 @@ const statusColors = {
 
 const params = new URLSearchParams(window.location.search);
 const id = parseInt(params.get('id'));
-const project = PROJECTS_DATA.find(p => p.id === id);
+const makeSlug = (title) => title
+  .toLowerCase()
+  .normalize('NFD')
+  .replace(/[\u0300-\u036f]/g, '')
+  .replace(/[^a-z0-9]+/g, '-')
+  .replace(/^-+|-+$/g, '');
+
+const pathSlug = window.location.pathname.replace(/^\//, '').replace(/\/$/, '');
+const projectBySlug = pathSlug ? PROJECTS_DATA.find(p => makeSlug(p.title) === pathSlug) : null;
+const project = projectBySlug || PROJECTS_DATA.find(p => p.id === id);
 const catColor = project ? (catColors[project.category] || '#00e5ff') : '#00e5ff';
 
 document.documentElement.style.setProperty('--accent', catColor);
@@ -209,7 +218,7 @@ function renderNotFound() {
   return `<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;">
     <span style="font-family:var(--font-mono);color:var(--accent);font-size:48px;">404</span>
     <p style="color:var(--muted)">Proyecto no encontrado.</p>
-    <a href="Portfolio.html" style="color:var(--accent);text-decoration:none;font-size:14px;">← Volver al portafolio</a>
+    <a href="/" style="color:var(--accent);text-decoration:none;font-size:14px;">← Volver al portafolio</a>
   </div>`;
 }
 
@@ -235,7 +244,7 @@ function renderProject(p) {
     const rc = catColors[r.category] || '#00e5ff';
     const preview = Array.isArray(r.images) && r.images.length ? r.images[0] : null;
     return `
-      <a href="project.html?id=${r.id}" style="text-decoration:none;display:block;padding:20px 22px;background:var(--bg2);border:1px solid ${rc}22;border-radius:10px;transition:all 0.2s;position:relative;overflow:hidden;"
+      <a href="/${makeSlug(r.title)}" style="text-decoration:none;display:block;padding:20px 22px;background:var(--bg2);border:1px solid ${rc}22;border-radius:10px;transition:all 0.2s;position:relative;overflow:hidden;"
         onmouseenter="this.style.borderColor='${rc}55';this.style.transform='translateY(-3px)'"
         onmouseleave="this.style.borderColor='${rc}22';this.style.transform='none'">
         <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,${rc},${rc}44);"></div>
@@ -254,7 +263,7 @@ function renderProject(p) {
   return `
     <!-- Nav -->
     <nav style="position:fixed;top:0;left:0;right:0;z-index:100;padding:0 2rem;height:64px;display:flex;align-items:center;justify-content:space-between;background:rgba(8,11,16,0.92);backdrop-filter:blur(12px);border-bottom:1px solid ${color}22;">
-      <a href="Portfolio.html" style="font-family:var(--font-mono);font-size:13px;color:${color};text-decoration:none;display:flex;align-items:center;gap:8px;">
+      <a href="/" style="font-family:var(--font-mono);font-size:13px;color:${color};text-decoration:none;display:flex;align-items:center;gap:8px;">
         <span style="opacity:0.6;">←</span> <span style="opacity:0.5;">~/</span>ernesto
       </a>
       <span style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">${p.year}</span>
@@ -379,7 +388,7 @@ function renderProject(p) {
 
     <!-- Footer -->
     <footer class="project-footer" style="padding:24px 10vw;border-top:1px solid ${color}18;display:flex;justify-content:space-between;align-items:center;">
-      <a href="Portfolio.html" style="font-family:var(--font-mono);font-size:12px;color:var(--muted);text-decoration:none;transition:color 0.2s;"
+      <a href="/" style="font-family:var(--font-mono);font-size:12px;color:var(--muted);text-decoration:none;transition:color 0.2s;"
         onmouseenter="this.style.color='${color}'"
         onmouseleave="this.style.color='var(--muted)'">← Volver al portafolio</a>
       <span style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">© 2026 Ernesto Saniel Castro Lozano</span>
