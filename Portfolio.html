@@ -360,7 +360,7 @@ function Nav({tweaks,lang,setLang}) {
           <a key={i} href={hrefs[i]} style={{color:'var(--muted)',fontSize:13,fontWeight:500,transition:'color .2s'}}
             onMouseEnter={e=>e.target.style.color=tweaks.accent} onMouseLeave={e=>e.target.style.color='var(--muted)'}>{l}</a>
         ))}
-        <button onClick={()=>setLang(l=>l==='es'?'en':'es')} style={{background:'transparent',border:`1px solid ${tweaks.accent}44`,borderRadius:6,padding:'4px 10px',color:'var(--text)',fontSize:12,cursor:'pointer',fontFamily:'var(--mono)',display:'flex',alignItems:'center',gap:6,transition:'all .2s'}}
+        <button onClick={()=>setLang(l=>{const n=l==='es'?'en':'es';localStorage.setItem('portfolio_lang',n);return n;})} style={{background:'transparent',border:`1px solid ${tweaks.accent}44`,borderRadius:6,padding:'4px 10px',color:'var(--text)',fontSize:12,cursor:'pointer',fontFamily:'var(--mono)',display:'flex',alignItems:'center',gap:6,transition:'all .2s'}}
           onMouseEnter={e=>e.currentTarget.style.borderColor=tweaks.accent} onMouseLeave={e=>e.currentTarget.style.borderColor=`${tweaks.accent}44`}>
           {lang==='es'?'🇵🇪 ES':'🇺🇸 EN'}
         </button>
@@ -818,8 +818,9 @@ function CenteredTitle({accent,title}){return(
 function App() {
   const [tweaks,setTweaks]=useState(TWEAK_DEFAULTS);
   const [open,setOpen]=useState(false);
-  const [lang,setLang]=useState('es');
+  const [lang,setLang]=useState(()=>localStorage.getItem('portfolio_lang')==='en'?'en':'es');
   useEffect(()=>{document.documentElement.style.setProperty('--accent',tweaks.accent);},[tweaks.accent]);
+  useEffect(()=>{document.documentElement.lang=lang;},[lang]);
   useEffect(()=>{
     const h=e=>{if(e.data?.type==='__activate_edit_mode')setOpen(true);if(e.data?.type==='__deactivate_edit_mode')setOpen(false);};
     window.addEventListener('message',h);window.parent.postMessage({type:'__edit_mode_available'},'*');return()=>window.removeEventListener('message',h);

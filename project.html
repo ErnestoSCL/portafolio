@@ -198,6 +198,53 @@ const statusColors = {
   "Portfolio": "#7c3aed",
 };
 
+const UI = {
+  es: {
+    back: 'Volver al portafolio',
+    notFound: 'Proyecto no encontrado.',
+    viewDemo: 'Ver Demo',
+    viewRepo: 'Ver Repositorio',
+    viewBackend: 'Ver Backend',
+    projectGallery: 'GALERÍA DEL PROYECTO',
+    expand: 'Ampliar',
+    detail: 'DESCRIPCIÓN DETALLADA',
+    highlights: 'RESULTADOS CLAVE',
+    stack: 'STACK TÉCNICO',
+    details: 'DETALLES',
+    year: 'Año',
+    status: 'Estado',
+    category: 'Categoría',
+    otherProjects: 'OTROS PROYECTOS',
+    youMayLike: 'También te puede interesar',
+    gallery: 'Galería',
+    close: 'Cerrar',
+    notFoundTitle: 'Proyecto no encontrado | ErnestoSCL Dev',
+  },
+  en: {
+    back: 'Back to portfolio',
+    notFound: 'Project not found.',
+    viewDemo: 'Live Demo',
+    viewRepo: 'View Repository',
+    viewBackend: 'View Backend',
+    projectGallery: 'PROJECT GALLERY',
+    expand: 'Expand',
+    detail: 'DETAILED DESCRIPTION',
+    highlights: 'KEY HIGHLIGHTS',
+    stack: 'TECH STACK',
+    details: 'DETAILS',
+    year: 'Year',
+    status: 'Status',
+    category: 'Category',
+    otherProjects: 'OTHER PROJECTS',
+    youMayLike: 'You may also like',
+    gallery: 'Gallery',
+    close: 'Close',
+    notFoundTitle: 'Project not found | ErnestoSCL Dev',
+  }
+};
+
+const getLang = () => (localStorage.getItem('portfolio_lang') === 'en' ? 'en' : 'es');
+
 const params = new URLSearchParams(window.location.search);
 const id = parseInt(params.get('id'));
 const makeSlug = (title) => title
@@ -215,20 +262,26 @@ const catColor = project ? (catColors[project.category] || '#00e5ff') : '#00e5ff
 document.documentElement.style.setProperty('--accent', catColor);
 
 function renderNotFound() {
+  const t = UI[getLang()];
   return `<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;">
     <span style="font-family:var(--font-mono);color:var(--accent);font-size:48px;">404</span>
-    <p style="color:var(--muted)">Proyecto no encontrado.</p>
-    <a href="/" style="color:var(--accent);text-decoration:none;font-size:14px;">← Volver al portafolio</a>
+    <p style="color:var(--muted)">${t.notFound}</p>
+    <a href="/" style="color:var(--accent);text-decoration:none;font-size:14px;">← ${t.back}</a>
   </div>`;
 }
 
 function renderProject(p) {
+  const lang = getLang();
+  const t = UI[lang];
   const color = catColors[p.category] || '#00e5ff';
   const statusColor = statusColors[p.status] || color;
+  const desc = lang === 'en' ? (p.description_en || p.description) : p.description;
+  const longDesc = lang === 'en' ? (p.longDescription_en || p.longDescription) : p.longDescription;
+  const highlightsSource = lang === 'en' ? (p.highlights_en || p.highlights) : p.highlights;
   const images = Array.isArray(p.images) ? p.images : [];
   const carouselId = `carousel-${p.id}`;
 
-  const highlights = p.highlights.map(h => `
+  const highlights = highlightsSource.map(h => `
     <div style="display:flex;align-items:flex-start;gap:12px;padding:14px 18px;background:var(--bg2);border:1px solid ${color}22;border-radius:8px;">
       <span style="color:${color};margin-top:2px;font-size:16px;">◆</span>
       <span style="font-size:14px;color:#94a3b8;line-height:1.5;">${h}</span>
@@ -256,7 +309,7 @@ function renderProject(p) {
     `;
   }).join('');
 
-  const longParagraphs = p.longDescription.split('\n\n').map(para =>
+  const longParagraphs = longDesc.split('\n\n').map(para =>
     `<p style="font-size:16px;color:#94a3b8;line-height:1.85;margin-bottom:20px;text-wrap:pretty;">${para}</p>`
   ).join('');
 
@@ -266,7 +319,10 @@ function renderProject(p) {
       <a href="/" style="font-family:var(--font-mono);font-size:13px;color:${color};text-decoration:none;display:flex;align-items:center;gap:8px;">
         <span style="opacity:0.6;">←</span> <span style="opacity:0.5;">~/</span>ernesto
       </a>
-      <span style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">${p.year}</span>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button onclick="toggleDetailLang()" style="background:transparent;border:1px solid ${color}44;border-radius:6px;padding:4px 10px;color:var(--text);font-size:12px;cursor:pointer;font-family:var(--font-mono);display:flex;align-items:center;gap:6px;transition:all .2s;">${lang==='es'?'🇵🇪 ES':'🇺🇸 EN'}</button>
+        <span style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">${p.year}</span>
+      </div>
     </nav>
 
     <!-- Hero -->
@@ -282,7 +338,7 @@ function renderProject(p) {
             </span>
           </div>
           <h1 style="font-size:clamp(2rem,4.4vw,3.6rem);font-weight:700;letter-spacing:-0.02em;line-height:1.1;margin-bottom:20px;">${p.title}</h1>
-          <p style="font-size:18px;color:#94a3b8;line-height:1.72;max-width:620px;text-wrap:pretty;">${p.description}</p>
+          <p style="font-size:18px;color:#94a3b8;line-height:1.72;max-width:620px;text-wrap:pretty;">${desc}</p>
           
           <div style="display:flex;gap:12px;margin-top:36px;flex-wrap:wrap;">
           ${p.demo ? `<a href="${p.demo}" target="_blank" rel="noopener noreferrer"
@@ -290,35 +346,35 @@ function renderProject(p) {
             onmouseenter="this.style.opacity='0.85';this.style.transform='translateY(-2px)'"
             onmouseleave="this.style.opacity='1';this.style.transform='none'">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
-            Ver Demo
+            ${t.viewDemo}
           </a>` : ''}
           <a href="${p.github}" target="_blank" rel="noopener noreferrer"
             style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border:1px solid ${color}55;color:${color};border-radius:6px;font-weight:600;font-size:14px;text-decoration:none;background:transparent;transition:background 0.2s,transform 0.2s;"
             onmouseenter="this.style.background='${color}12';this.style.transform='translateY(-2px)'"
             onmouseleave="this.style.background='transparent';this.style.transform='none'">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
-            Ver Repositorio
+            ${t.viewRepo}
           </a>
           ${p.githubBackend ? `<a href="${p.githubBackend}" target="_blank" rel="noopener noreferrer"
             style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border:1px solid ${color}44;color:${color};border-radius:6px;font-weight:600;font-size:14px;text-decoration:none;background:transparent;transition:background 0.2s,transform 0.2s;"
             onmouseenter="this.style.background='${color}10';this.style.transform='translateY(-2px)'"
             onmouseleave="this.style.background='transparent';this.style.transform='none'">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
-            Ver Backend
+            ${t.viewBackend}
           </a>` : ''}
           </div>
         </div>
 
         ${images.length ? `
         <div style="display:flex;flex-direction:column;gap:10px;">
-          <div style="font-family:var(--font-mono);font-size:11px;color:${color};letter-spacing:0.12em;">GALERÍA DEL PROYECTO</div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:${color};letter-spacing:0.12em;">${t.projectGallery}</div>
           <div style="display:flex;justify-content:flex-end;width:100%;">
           <div id="${carouselId}" class="carousel-wrap" data-carousel data-images="${encodeURIComponent(JSON.stringify(images))}" data-title="${p.title}" style="width:100%;max-width:960px;">
             <div class="carousel-stage" style="aspect-ratio:16/8.6;">
               <div class="carousel-track">
                 ${images.map(img => `<div class="carousel-slide"><img src="${img}" alt="${p.title}"/></div>`).join('')}
               </div>
-              <button class="carousel-expand" data-action="expand" aria-label="Ver en grande">Ampliar</button>
+              <button class="carousel-expand" data-action="expand" aria-label="${t.expand}">${t.expand}</button>
               ${images.length > 1 ? `
               <button class="carousel-btn carousel-prev" aria-label="Imagen anterior">&#10094;</button>
               <button class="carousel-btn carousel-next" aria-label="Imagen siguiente">&#10095;</button>
@@ -346,7 +402,7 @@ function renderProject(p) {
       
       <!-- Left: long description -->
       <div>
-        <div style="font-family:var(--font-mono);font-size:11px;color:${color};margin-bottom:20px;letter-spacing:0.12em;">DESCRIPCIÓN DETALLADA</div>
+        <div style="font-family:var(--font-mono);font-size:11px;color:${color};margin-bottom:20px;letter-spacing:0.12em;">${t.detail}</div>
         ${longParagraphs}
       </div>
 
@@ -354,20 +410,20 @@ function renderProject(p) {
       <div style="display:flex;flex-direction:column;gap:28px;">
         <!-- Highlights -->
         <div>
-          <div style="font-family:var(--font-mono);font-size:11px;color:${color};margin-bottom:14px;letter-spacing:0.12em;">RESULTADOS CLAVE</div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:${color};margin-bottom:14px;letter-spacing:0.12em;">${t.highlights}</div>
           <div style="display:flex;flex-direction:column;gap:8px;">${highlights}</div>
         </div>
 
         <!-- Tech stack -->
         <div>
-          <div style="font-family:var(--font-mono);font-size:11px;color:${color};margin-bottom:14px;letter-spacing:0.12em;">STACK TÉCNICO</div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:${color};margin-bottom:14px;letter-spacing:0.12em;">${t.stack}</div>
           <div style="display:flex;flex-wrap:wrap;gap:8px;">${tags}</div>
         </div>
 
         <!-- Meta -->
         <div style="padding:20px;background:var(--bg2);border:1px solid ${color}22;border-radius:10px;">
-          <div style="font-family:var(--font-mono);font-size:11px;color:${color};margin-bottom:14px;letter-spacing:0.12em;">DETALLES</div>
-          ${[['Año', p.year], ['Estado', p.status], ['Categoría', p.category]].map(([k, v]) => `
+          <div style="font-family:var(--font-mono);font-size:11px;color:${color};margin-bottom:14px;letter-spacing:0.12em;">${t.details}</div>
+          ${[[t.year, p.year], [t.status, p.status], [t.category, p.category]].map(([k, v]) => `
             <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid ${color}11;font-size:13px;">
               <span style="color:var(--muted);font-family:var(--font-mono);">${k}</span>
               <span style="color:var(--text);font-weight:500;">${v}</span>
@@ -380,8 +436,8 @@ function renderProject(p) {
     <!-- Related -->
     <section class="project-related" style="padding:40px 10vw 100px;border-top:1px solid ${color}18;">
       <div style="max-width:1240px;margin:0 auto;">
-        <div style="font-family:var(--font-mono);font-size:11px;color:${color};margin-bottom:8px;letter-spacing:0.12em;">OTROS PROYECTOS</div>
-        <h3 style="font-size:22px;font-weight:600;margin-bottom:28px;">También te puede interesar</h3>
+        <div style="font-family:var(--font-mono);font-size:11px;color:${color};margin-bottom:8px;letter-spacing:0.12em;">${t.otherProjects}</div>
+        <h3 style="font-size:22px;font-weight:600;margin-bottom:28px;">${t.youMayLike}</h3>
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;">${relatedCards}</div>
       </div>
     </section>
@@ -390,7 +446,7 @@ function renderProject(p) {
     <footer class="project-footer" style="padding:24px 10vw;border-top:1px solid ${color}18;display:flex;justify-content:space-between;align-items:center;">
       <a href="/" style="font-family:var(--font-mono);font-size:12px;color:var(--muted);text-decoration:none;transition:color 0.2s;"
         onmouseenter="this.style.color='${color}'"
-        onmouseleave="this.style.color='var(--muted)'">← Volver al portafolio</a>
+        onmouseleave="this.style.color='var(--muted)'">← ${t.back}</a>
       <span style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">© 2026 Ernesto Saniel Castro Lozano</span>
     </footer>
   `;
@@ -452,11 +508,13 @@ function ensureLightbox() {
   root = document.createElement('div');
   root.id = 'carousel-lightbox';
   root.className = 'lightbox';
+  const lang = getLang();
+  const t = UI[lang];
   root.innerHTML = `
     <div class="lightbox-panel">
       <div class="lightbox-top">
-        <div class="lightbox-title" data-lb-title>Galería</div>
-        <button class="lightbox-close" data-lb-close>Cerrar</button>
+        <div class="lightbox-title" data-lb-title>${t.gallery}</div>
+        <button class="lightbox-close" data-lb-close>${t.close}</button>
       </div>
       <div class="lightbox-stage">
         <div class="lightbox-track" data-lb-track></div>
@@ -475,6 +533,7 @@ function ensureLightbox() {
 
 function openLightbox(images, startIndex, title) {
   if (!Array.isArray(images) || !images.length) return;
+  const lang = getLang();
   const lb = ensureLightbox();
   const panel = lb.querySelector('.lightbox-panel');
   const track = lb.querySelector('[data-lb-track]');
@@ -487,7 +546,7 @@ function openLightbox(images, startIndex, title) {
   const btnClose = lb.querySelector('[data-lb-close]');
 
   let index = Math.max(0, Math.min(startIndex || 0, images.length - 1));
-  titleLabel.textContent = title || 'Galería';
+  titleLabel.textContent = title || UI[lang].gallery;
   totalLabel.textContent = String(images.length);
 
   track.innerHTML = images.map((img) => `<div class="lightbox-slide"><img src="${img}" alt="${title || 'Imagen'}"/></div>`).join('');
@@ -537,9 +596,17 @@ function openLightbox(images, startIndex, title) {
   document.body.style.overflow = 'hidden';
 }
 
+function toggleDetailLang() {
+  const curr = getLang();
+  const next = curr === 'es' ? 'en' : 'es';
+  localStorage.setItem('portfolio_lang', next);
+  window.location.reload();
+}
+
 document.querySelector('main').innerHTML = project ? renderProject(project) : renderNotFound();
 if (project) initCarousels();
-document.title = project ? `${project.title} | ErnestoSCL Dev` : 'Proyecto no encontrado | ErnestoSCL Dev';
+const langNow = getLang();
+document.title = project ? `${project.title} | ErnestoSCL Dev` : UI[langNow].notFoundTitle;
 </script>
 </body>
 </html>
