@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ErnestoSCL Dev</title>
+<link rel="icon" type="image/svg+xml" href="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="projects-data.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #080b10;
+    --bg2: #0e1420;
+    --bg3: #141c2c;
+    --border: rgba(0,229,255,0.12);
+    --accent: #00e5ff;
+    --text: #e2eaf6;
+    --muted: #6b7fa3;
+    --font-head: 'Space Grotesk', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-head);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  main { position: relative; z-index: 1; }
+  ::selection { background: rgba(0,229,255,0.25); }
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+  @keyframes fadeUp { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
+  p { text-align: justify; text-justify: inter-word; }
+  @media (max-width: 1024px) {
+    .project-content { grid-template-columns: 1fr !important; gap: 30px !important; }
+    .project-hero-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
+    .project-hero-copy { max-width: 100% !important; }
+  }
+  @media (max-width: 768px) {
+    nav { padding: 0 1rem !important; }
+    .project-hero { padding: 100px 6vw 44px !important; }
+    .project-content { padding: 44px 6vw !important; }
+    .project-related { padding: 30px 6vw 80px !important; }
+    .project-footer { padding: 20px 6vw !important; flex-direction: column; gap: 8px; align-items: flex-start !important; }
+  }
+  .carousel-wrap { border: 1px solid var(--border); border-radius: 12px; background: var(--bg2); overflow: hidden; }
+  .carousel-stage { position: relative; width: 100%; aspect-ratio: 16/10; background: #0a0f18; }
+  .carousel-track { width: 100%; height: 100%; display: flex; transition: transform 320ms ease; }
+  .carousel-slide { min-width: 100%; height: 100%; }
+  .carousel-slide img { width: 100%; height: 100%; object-fit: contain; display: block; background: #0a0f18; }
+  .carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.25);
+    background: rgba(8,11,16,0.72);
+    color: #e2eaf6;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(6px);
+  }
+  .carousel-btn:hover { background: rgba(8,11,16,0.9); }
+  .carousel-prev { left: 10px; }
+  .carousel-next { right: 10px; }
+  .carousel-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 12px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  .carousel-dots { display: flex; gap: 6px; flex-wrap: wrap; }
+  .carousel-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,0.25);
+    cursor: pointer;
+    padding: 0;
+  }
+  .carousel-dot.active { background: var(--accent); }
+  .carousel-count { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+  .carousel-expand {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    border: 1px solid rgba(255,255,255,0.25);
+    background: rgba(8,11,16,0.72);
+    color: #e2eaf6;
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+  }
+  .carousel-expand:hover { background: rgba(8,11,16,0.9); }
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    background: rgba(3,6,11,0.92);
+    backdrop-filter: blur(8px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 34px;
+  }
+  .lightbox.open { display: flex; }
+  .lightbox-panel {
+    width: min(1500px, 96vw);
+    max-height: 94vh;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 14px;
+    background: #070d18;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .lightbox-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .lightbox-title { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+  .lightbox-close {
+    border: 1px solid rgba(255,255,255,0.25);
+    background: rgba(8,11,16,0.75);
+    color: #e2eaf6;
+    border-radius: 8px;
+    padding: 6px 10px;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+  .lightbox-stage {
+    position: relative;
+    width: 100%;
+    height: min(78vh, 980px);
+    background: #050911;
+  }
+  .lightbox-track { width: 100%; height: 100%; display: flex; transition: transform 320ms ease; }
+  .lightbox-slide { min-width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+  .lightbox-slide img { max-width: 100%; max-height: 100%; object-fit: contain; }
+  .lightbox-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+  @media (max-width: 768px) {
+    .lightbox { padding: 12px; }
+    .lightbox-stage { height: 62vh; }
+  }
+</style>
+</head>
+<body>
+<main></main>
+<script>
+const catColors = {
+  "NLP": "#00e5ff",
+  "ML/DL": "#7c3aed",
+  "GenAI": "#f59e0b",
+  "CV": "#10b981",
+  "Data Eng": "#f43f5e",
+};
+const statusColors = {
+  "Producción": "#10b981",
+  "Open Source": "#00e5ff",
+  "Portfolio": "#7c3aed",
+};
+
+const params = new URLSearchParams(window.location.search);
+const id = parseInt(params.get('id'));
+const project = PROJECTS_DATA.find(p => p.id === id);
+const catColor = project ? (catColors[project.category] || '#00e5ff') : '#00e5ff';
+
+document.documentElement.style.setProperty('--accent', catColor);
+
+function renderNotFound() {
+  return `<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;">
+    <span style="font-family:var(--font-mono);color:var(--accent);font-size:48px;">404</span>
+    <p style="color:var(--muted)">Proyecto no encontrado.</p>
+    <a href="Portfolio.html" style="color:var(--accent);text-decoration:none;font-size:14px;">← Volver al portafolio</a>
+  </div>`;
+}
+
+function renderProject(p) {
+  const color = catColors[p.category] || '#00e5ff';
+  const statusColor = statusColors[p.status] || color;
+  const images = Array.isArray(p.images) ? p.images : [];
+  const carouselId = `carousel-${p.id}`;
+
+  const highlights = p.highlights.map(h => `
+    <div style="display:flex;align-items:flex-start;gap:12px;padding:14px 18px;background:var(--bg2);border:1px solid ${color}22;border-radius:8px;">
+      <span style="color:${color};margin-top:2px;font-size:16px;">◆</span>
+      <span style="font-size:14px;color:#94a3b8;line-height:1.5;">${h}</span>
+    </div>
+  `).join('');
+
+  const tags = p.tags.map(t => `
+    <span style="font-family:var(--font-mono);font-size:12px;padding:5px 14px;background:var(--bg);border:1px solid ${color}33;border-radius:6px;color:${color};">${t}</span>
+  `).join('');
+
+  const relatedProjects = PROJECTS_DATA.filter(x => x.id !== p.id).slice(0, 3);
+  const relatedCards = relatedProjects.map(r => {
+    const rc = catColors[r.category] || '#00e5ff';
+    const preview = Array.isArray(r.images) && r.images.length ? r.images[0] : null;
+    return `
+      <a href="project.html?id=${r.id}" style="text-decoration:none;display:block;padding:20px 22px;background:var(--bg2);border:1px solid ${rc}22;border-radius:10px;transition:all 0.2s;position:relative;overflow:hidden;"
+        onmouseenter="this.style.borderColor='${rc}55';this.style.transform='translateY(-3px)'"
+        onmouseleave="this.style.borderColor='${rc}22';this.style.transform='none'">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,${rc},${rc}44);"></div>
+        ${preview ? `<div style="width:100%;aspect-ratio:16/9;border-radius:8px;overflow:hidden;border:1px solid ${rc}22;background:var(--bg);margin-bottom:12px;"><img src="${preview}" alt="${r.title}" style="width:100%;height:100%;object-fit:cover;display:block;"/></div>` : ''}
+        <div style="font-family:var(--font-mono);font-size:10px;color:${rc};margin-bottom:8px;">${r.category}</div>
+        <div style="font-weight:600;font-size:15px;color:var(--text);margin-bottom:6px;">${r.title}</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${r.description}</div>
+      </a>
+    `;
+  }).join('');
+
+  const longParagraphs = p.longDescription.split('\n\n').map(para =>
+    `<p style="font-size:16px;color:#94a3b8;line-height:1.85;margin-bottom:20px;text-wrap:pretty;">${para}</p>`
+  ).join('');
+
+  return `
+    <!-- Nav -->
+    <nav style="position:fixed;top:0;left:0;right:0;z-index:100;padding:0 2rem;height:64px;display:flex;align-items:center;justify-content:space-between;background:rgba(8,11,16,0.92);backdrop-filter:blur(12px);border-bottom:1px solid ${color}22;">
+      <a href="Portfolio.html" style="font-family:var(--font-mono);font-size:13px;color:${color};text-decoration:none;display:flex;align-items:center;gap:8px;">
+        <span style="opacity:0.6;">←</span> <span style="opacity:0.5;">~/</span>ernesto
+      </a>
+      <span style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">${p.year}</span>
+    </nav>
+
+    <!-- Hero -->
+    <section class="project-hero" style="padding:120px 10vw 60px;position:relative;animation:fadeUp 0.5s ease both;">
+      <div style="position:absolute;top:10%;right:8%;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,${color}15 0%,transparent 70%);pointer-events:none;"></div>
+      <div class="project-hero-grid" style="max-width:1720px;margin:0 auto;display:grid;grid-template-columns:minmax(320px,0.9fr) minmax(700px,1.35fr);gap:40px;align-items:start;">
+        <div class="project-hero-copy" style="max-width:760px;">
+          <div style="display:flex;gap:10px;align-items:center;margin-bottom:28px;flex-wrap:wrap;">
+            <span style="font-family:var(--font-mono);font-size:11px;padding:4px 12px;background:${color}18;color:${color};border-radius:999px;border:1px solid ${color}33;">${p.category}</span>
+            <span style="display:flex;align-items:center;gap:5px;font-family:var(--font-mono);font-size:11px;color:${statusColor};">
+              <span style="width:6px;height:6px;border-radius:50%;background:currentColor;"></span>${p.status}
+            </span>
+          </div>
+          <h1 style="font-size:clamp(2.2rem,5vw,4rem);font-weight:700;letter-spacing:-0.02em;line-height:1.1;margin-bottom:24px;">${p.title}</h1>
+          <p style="font-size:18px;color:#94a3b8;line-height:1.75;max-width:680px;text-wrap:pretty;">${p.description}</p>
+          
+          <div style="display:flex;gap:12px;margin-top:36px;flex-wrap:wrap;">
+          ${p.demo ? `<a href="${p.demo}" target="_blank" rel="noopener noreferrer"
+            style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;background:${color};color:#080b10;border-radius:6px;font-weight:600;font-size:14px;text-decoration:none;transition:opacity 0.2s,transform 0.2s;"
+            onmouseenter="this.style.opacity='0.85';this.style.transform='translateY(-2px)'"
+            onmouseleave="this.style.opacity='1';this.style.transform='none'">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
+            Ver Demo
+          </a>` : ''}
+          <a href="${p.github}" target="_blank" rel="noopener noreferrer"
+            style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border:1px solid ${color}55;color:${color};border-radius:6px;font-weight:600;font-size:14px;text-decoration:none;background:transparent;transition:background 0.2s,transform 0.2s;"
+            onmouseenter="this.style.background='${color}12';this.style.transform='translateY(-2px)'"
+            onmouseleave="this.style.background='transparent';this.style.transform='none'">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+            Ver Repositorio
+          </a>
+          ${p.githubBackend ? `<a href="${p.githubBackend}" target="_blank" rel="noopener noreferrer"
+            style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border:1px solid ${color}44;color:${color};border-radius:6px;font-weight:600;font-size:14px;text-decoration:none;background:transparent;transition:background 0.2s,transform 0.2s;"
+            onmouseenter="this.style.background='${color}10';this.style.transform='translateY(-2px)'"
+            onmouseleave="this.style.background='transparent';this.style.transform='none'">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+            Ver Backend
+          </a>` : ''}
+          </div>
+        </div>
+
+        ${images.length ? `
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="font-family:var(--font-mono);font-size:11px;color:${color};letter-spacing:0.12em;">GALERÍA DEL PROYECTO</div>
+          <div style="display:flex;justify-content:flex-end;width:100%;">
+          <div id="${carouselId}" class="carousel-wrap" data-carousel data-images="${encodeURIComponent(JSON.stringify(images))}" data-title="${p.title}" style="width:100%;max-width:980px;">
+            <div class="carousel-stage" style="aspect-ratio:16/9;">
+              <div class="carousel-track">
+                ${images.map(img => `<div class="carousel-slide"><img src="${img}" alt="${p.title}"/></div>`).join('')}
+              </div>
+              <button class="carousel-expand" data-action="expand" aria-label="Ver en grande">Ampliar</button>
+              ${images.length > 1 ? `
+              <button class="carousel-btn carousel-prev" aria-label="Imagen anterior">&#10094;</button>
+              <button class="carousel-btn carousel-next" aria-label="Imagen siguiente">&#10095;</button>
+              ` : ''}
+            </div>
+            <div class="carousel-footer">
+              <div class="carousel-dots">
+                ${images.map((_,i)=>`<button class="carousel-dot ${i===0?'active':''}" data-index="${i}" aria-label="Ir a imagen ${i+1}"></button>`).join('')}
+              </div>
+              <div class="carousel-count"><span data-current>1</span> / ${images.length}</div>
+            </div>
+          </div>
+          </div>
+        </div>
+        ` : ''}
+      </div>
+    </section>
+
+    <!-- Divider -->
+    <div style="height:1px;background:linear-gradient(90deg,transparent,${color}33,transparent);margin:0 10vw;"></div>
+
+    <!-- Content grid -->
+    <section class="project-content" style="padding:60px 10vw;display:grid;grid-template-columns:1fr 360px;gap:56px;max-width:1240px;margin:0 auto;animation:fadeUp 0.5s ease 0.1s both;">
+      
+      <!-- Left: long description -->
+      <div>
+        <div style="font-family:var(--font-mono);font-size:11px;color:${color};margin-bottom:20px;letter-spacing:0.12em;">DESCRIPCIÓN DETALLADA</div>
+        ${longParagraphs}
+      </div>
+
+      <!-- Right: sidebar -->
+      <div style="display:flex;flex-direction:column;gap:28px;">
+        <!-- Highlights -->
+        <div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:${color};margin-bottom:14px;letter-spacing:0.12em;">RESULTADOS CLAVE</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">${highlights}</div>
+        </div>
+
+        <!-- Tech stack -->
+        <div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:${color};margin-bottom:14px;letter-spacing:0.12em;">STACK TÉCNICO</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">${tags}</div>
+        </div>
+
+        <!-- Meta -->
+        <div style="padding:20px;background:var(--bg2);border:1px solid ${color}22;border-radius:10px;">
+          <div style="font-family:var(--font-mono);font-size:11px;color:${color};margin-bottom:14px;letter-spacing:0.12em;">DETALLES</div>
+          ${[['Año', p.year], ['Estado', p.status], ['Categoría', p.category]].map(([k, v]) => `
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid ${color}11;font-size:13px;">
+              <span style="color:var(--muted);font-family:var(--font-mono);">${k}</span>
+              <span style="color:var(--text);font-weight:500;">${v}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </section>
+
+    <!-- Related -->
+    <section class="project-related" style="padding:40px 10vw 100px;border-top:1px solid ${color}18;">
+      <div style="max-width:1240px;margin:0 auto;">
+        <div style="font-family:var(--font-mono);font-size:11px;color:${color};margin-bottom:8px;letter-spacing:0.12em;">OTROS PROYECTOS</div>
+        <h3 style="font-size:22px;font-weight:600;margin-bottom:28px;">También te puede interesar</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;">${relatedCards}</div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="project-footer" style="padding:24px 10vw;border-top:1px solid ${color}18;display:flex;justify-content:space-between;align-items:center;">
+      <a href="Portfolio.html" style="font-family:var(--font-mono);font-size:12px;color:var(--muted);text-decoration:none;transition:color 0.2s;"
+        onmouseenter="this.style.color='${color}'"
+        onmouseleave="this.style.color='var(--muted)'">← Volver al portafolio</a>
+      <span style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">© 2026 Ernesto Saniel Castro Lozano</span>
+    </footer>
+  `;
+}
+
+function initCarousels() {
+  const carousels = document.querySelectorAll('[data-carousel]');
+  carousels.forEach((carousel) => {
+    const track = carousel.querySelector('.carousel-track');
+    const slides = carousel.querySelectorAll('.carousel-slide');
+    const dots = carousel.querySelectorAll('.carousel-dot');
+    const prevBtn = carousel.querySelector('.carousel-prev');
+    const nextBtn = carousel.querySelector('.carousel-next');
+    const expandBtn = carousel.querySelector('[data-action="expand"]');
+    const currentLabel = carousel.querySelector('[data-current]');
+    if (!track || !slides.length) return;
+
+    let index = 0;
+    const update = () => {
+      track.style.transform = `translateX(-${index * 100}%)`;
+      carousel.dataset.index = String(index);
+      dots.forEach((d, i) => d.classList.toggle('active', i === index));
+      if (currentLabel) currentLabel.textContent = String(index + 1);
+    };
+
+    if (prevBtn) prevBtn.addEventListener('click', () => {
+      index = (index - 1 + slides.length) % slides.length;
+      update();
+    });
+
+    if (nextBtn) nextBtn.addEventListener('click', () => {
+      index = (index + 1) % slides.length;
+      update();
+    });
+
+    dots.forEach((dot) => {
+      dot.addEventListener('click', () => {
+        index = Number(dot.getAttribute('data-index')) || 0;
+        update();
+      });
+    });
+
+    if (expandBtn) {
+      expandBtn.addEventListener('click', () => {
+        const raw = carousel.getAttribute('data-images') || '';
+        const images = JSON.parse(decodeURIComponent(raw || '%5B%5D'));
+        const title = carousel.getAttribute('data-title') || 'Galería';
+        openLightbox(images, index, title);
+      });
+    }
+
+    update();
+  });
+}
+
+function ensureLightbox() {
+  let root = document.getElementById('carousel-lightbox');
+  if (root) return root;
+  root = document.createElement('div');
+  root.id = 'carousel-lightbox';
+  root.className = 'lightbox';
+  root.innerHTML = `
+    <div class="lightbox-panel">
+      <div class="lightbox-top">
+        <div class="lightbox-title" data-lb-title>Galería</div>
+        <button class="lightbox-close" data-lb-close>Cerrar</button>
+      </div>
+      <div class="lightbox-stage">
+        <div class="lightbox-track" data-lb-track></div>
+        <button class="carousel-btn carousel-prev" data-lb-prev aria-label="Imagen anterior">&#10094;</button>
+        <button class="carousel-btn carousel-next" data-lb-next aria-label="Imagen siguiente">&#10095;</button>
+      </div>
+      <div class="lightbox-footer">
+        <div class="carousel-dots" data-lb-dots></div>
+        <div class="carousel-count"><span data-lb-current>1</span> / <span data-lb-total>1</span></div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(root);
+  return root;
+}
+
+function openLightbox(images, startIndex, title) {
+  if (!Array.isArray(images) || !images.length) return;
+  const lb = ensureLightbox();
+  const panel = lb.querySelector('.lightbox-panel');
+  const track = lb.querySelector('[data-lb-track]');
+  const dotsWrap = lb.querySelector('[data-lb-dots]');
+  const currentLabel = lb.querySelector('[data-lb-current]');
+  const totalLabel = lb.querySelector('[data-lb-total]');
+  const titleLabel = lb.querySelector('[data-lb-title]');
+  const btnPrev = lb.querySelector('[data-lb-prev]');
+  const btnNext = lb.querySelector('[data-lb-next]');
+  const btnClose = lb.querySelector('[data-lb-close]');
+
+  let index = Math.max(0, Math.min(startIndex || 0, images.length - 1));
+  titleLabel.textContent = title || 'Galería';
+  totalLabel.textContent = String(images.length);
+
+  track.innerHTML = images.map((img) => `<div class="lightbox-slide"><img src="${img}" alt="${title || 'Imagen'}"/></div>`).join('');
+  dotsWrap.innerHTML = images.map((_, i) => `<button class="carousel-dot ${i===index?'active':''}" data-lb-index="${i}" aria-label="Ir a imagen ${i+1}"></button>`).join('');
+
+  const update = () => {
+    track.style.transform = `translateX(-${index * 100}%)`;
+    currentLabel.textContent = String(index + 1);
+    dotsWrap.querySelectorAll('.carousel-dot').forEach((d, i) => d.classList.toggle('active', i === index));
+  };
+
+  const onPrev = () => { index = (index - 1 + images.length) % images.length; update(); };
+  const onNext = () => { index = (index + 1) % images.length; update(); };
+  const onEsc = (e) => {
+    if (e.key === 'Escape') close();
+    if (e.key === 'ArrowLeft') onPrev();
+    if (e.key === 'ArrowRight') onNext();
+  };
+  const onBackdrop = (e) => { if (!panel.contains(e.target)) close(); };
+  const onDotClick = (e) => {
+    const target = e.target.closest('[data-lb-index]');
+    if (!target) return;
+    index = Number(target.getAttribute('data-lb-index')) || 0;
+    update();
+  };
+
+  function close() {
+    lb.classList.remove('open');
+    document.body.style.overflow = '';
+    btnPrev.removeEventListener('click', onPrev);
+    btnNext.removeEventListener('click', onNext);
+    btnClose.removeEventListener('click', close);
+    lb.removeEventListener('click', onBackdrop);
+    dotsWrap.removeEventListener('click', onDotClick);
+    document.removeEventListener('keydown', onEsc);
+  }
+
+  btnPrev.addEventListener('click', onPrev);
+  btnNext.addEventListener('click', onNext);
+  btnClose.addEventListener('click', close);
+  lb.addEventListener('click', onBackdrop);
+  dotsWrap.addEventListener('click', onDotClick);
+  document.addEventListener('keydown', onEsc);
+
+  update();
+  lb.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+document.querySelector('main').innerHTML = project ? renderProject(project) : renderNotFound();
+if (project) initCarousels();
+document.title = project ? `${project.title} | ErnestoSCL Dev` : 'Proyecto no encontrado | ErnestoSCL Dev';
+</script>
+</body>
+</html>

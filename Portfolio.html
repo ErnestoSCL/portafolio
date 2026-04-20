@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ErnestoSCL Dev</title>
+<link rel="icon" type="image/svg+xml" href="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css"/>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#07090f;--bg2:#0d1117;--bg3:#141b27;--bg4:#1a2235;--border:rgba(0,229,255,.1);--accent:#00e5ff;--text:#e2eaf6;--muted:#6b7fa3;--font:'Space Grotesk',sans-serif;--mono:'JetBrains Mono',monospace}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font);overflow-x:hidden;min-height:100vh}
+#aurora{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.a-blob{position:absolute;border-radius:50%;filter:blur(100px);opacity:.12;animation:auroraMove 14s ease-in-out infinite alternate}
+#root{position:relative;z-index:1}
+::selection{background:rgba(0,229,255,.2)}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--accent);border-radius:2px}
+a{text-decoration:none;color:inherit}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes auroraMove{0%{transform:translate(0,0) scale(1)}100%{transform:translate(6%,8%) scale(1.15)}}
+@keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+section:not(#hero) p,section:not(#hero) li,section:not(#hero) td{text-align:justify;text-justify:inter-word}
+@media (max-width: 1024px){
+  .about-grid{grid-template-columns:1fr !important;gap:32px !important}
+  .contact-grid{grid-template-columns:1fr !important;gap:28px !important}
+}
+@media (max-width: 768px){
+  nav{padding:0 1rem !important}
+  .nav-root{height:56px !important}
+  .nav-links a{display:none !important}
+  .nav-links{gap:.5rem !important}
+  section{padding:80px 6vw !important}
+  #hero{padding:92px 6vw 56px !important}
+  .skills-grid,.services-grid,.certs-grid,.projects-grid{grid-template-columns:1fr !important}
+  .about-badge{display:none !important}
+  .about-xp-badge{right:8px !important;bottom:8px !important;padding:10px 14px !important}
+}
+@media (max-width: 520px){
+  body{font-size:14px}
+  h1{line-height:1.1}
+  .hero-name{font-size:clamp(2.2rem,11vw,3.2rem) !important}
+  .hero-bio{font-size:15px !important;line-height:1.65 !important}
+}
+</style>
+</head>
+<body>
+
+<!-- Aurora background -->
+<div id="aurora">
+  <div class="a-blob" style="width:600px;height:600px;background:#00e5ff;top:-10%;left:-5%;animation-duration:16s"></div>
+  <div class="a-blob" style="width:500px;height:500px;background:#7c3aed;top:30%;right:-8%;animation-duration:20s;animation-delay:-5s"></div>
+  <div class="a-blob" style="width:400px;height:400px;background:#00e5ff;bottom:10%;left:20%;animation-duration:18s;animation-delay:-8s;opacity:.12"></div>
+  <div class="a-blob" style="width:350px;height:350px;background:#10b981;top:60%;right:25%;animation-duration:22s;animation-delay:-3s;opacity:.1"></div>
+  <!-- Grid overlay -->
+  <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(0,229,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.04) 1px,transparent 1px);background-size:56px 56px"></div>
+</div>
+
+<div id="root"></div>
+
+<script type="text/babel">
+const {useState,useEffect,useRef,useCallback}=React;
+
+const TWEAK_DEFAULTS=/*EDITMODE-BEGIN*/{"name":"Ernesto Saniel Castro Lozano","role":"Data Scientist & ML Engineer","accent":"#00e5ff"}/*EDITMODE-END*/;
+
+const T={
+  es:{
+    nav:["Inicio","Sobre mí","Skills","Servicios","Certificados","Proyectos","Contacto"],
+    greeting:"¡Hola! Soy",
+    roles:["Data Scientist","ML Engineer","IA Engineer"],
+    bio:"Apasionado por construir sistemas inteligentes que resuelven problemas reales. Trabajo en la intersección del machine learning, NLP y análisis de datos a escala. Me interesa llevar modelos desde el prototipo hasta producción de forma eficiente y reproducible.",
+    contact_btn:"Contáctame",download:"Descargar CV",
+    view_projects:"Ver proyectos",
+    about_title:"Sobre Mí",about_bio1:"Ingeniero de Sistemas especializado en el diseño e implementación de soluciones de Inteligencia Artificial aplicada, con experiencia en Machine Learning, Deep Learning, NLP y aplicaciones basadas en LLMs, incluyendo automatización avanzada con IA agéntica. Desarrollo soluciones de extremo a extremo, desde el modelado y la evaluación hasta la integración en entornos productivos, con foco en escalabilidad, trazabilidad y explicabilidad.",
+    about_bio2:"Cuento con sólida experiencia en arquitectura de APIs, construcción de productos de datos y despliegue de modelos bajo buenas prácticas de MLOps. Mi enfoque combina rigor técnico y visión de negocio para convertir datos en decisiones accionables, optimizando procesos y generando valor sostenible.",
+    about_bio3:"He liderado proyectos en salud digital, incluyendo tamizaje asistido de cáncer bucal y leucemia, integrando estándares de calidad, documentación técnica y validación experimental. Complemento mi perfil con gestión de proyectos bajo lineamientos PMBOK y metodologías ágiles, asegurando ejecución eficiente, entregas de alto impacto y alineación con objetivos estratégicos.",
+    role_subtitle:"apasionado por la IA",
+    edu_value:"Ingeniería de Computación y Sistemas",
+    loc_value:"Trujillo, La Libertad, Perú",
+    exp_value:"2+ años en Data Science & ML",
+    edu:"Educación",loc:"Ubicación",exp:"Experiencia",
+    skills_title:"Skills & Expertise",services_title:"¿Qué hago?",
+    certs_title:"Certificaciones",projects_title:"Proyectos",
+    contact_title:"Contacto",contact_sub:"¿Tienes un proyecto interesante?",
+    contact_desc:"Estoy disponible para proyectos freelance, consultoría y posiciones full-time.",
+    send:"Enviar →",sent_title:"¡Mensaje enviado!",sent_sub:"Te responderé pronto.",
+    metrics:[{v:"15+",l:"Proyectos Completados"},{v:"2+",l:"Años de Experiencia"}],
+    all:"Todos",see:"Ver proyecto →",
+    svc_names:["Machine Learning","NLP & LLMs","Visión Computacional","Análisis de Datos","MLOps & Despliegue","APIs de IA"],
+    svc_descs:[
+      "Modelos predictivos y clasificadores con scikit-learn, XGBoost y redes neuronales. Desde el análisis hasta producción.",
+      "Análisis de sentimiento, chatbots RAG, fine-tuning de transformers y pipelines con LangChain y LangGraph.",
+      "Detección de objetos y clasificación con PyTorch, YOLOv8 y OpenCV. Modelos explicables con Score-CAM.",
+      "Dashboards interactivos, reportes automatizados y visualizaciones con Plotly, Seaborn y Power BI.",
+      "Pipelines reproducibles, monitoreo con MLflow, Docker y Kubernetes para despliegue en GCP o Azure.",
+      "APIs RESTful para exponer modelos de ML. Documentación Swagger y optimización de latencia con FastAPI, Flask o Django.",
+    ],
+    svc_tags:[["Supervisado","No supervisado","XGBoost"],["Hugging Face","LangChain","RAG"],["YOLO","OpenCV","Score-CAM"],["Plotly","Pandas","Power BI"],["Docker","Kubernetes","MLflow"],["FastAPI","Flask","Django","REST","Swagger"]],
+    diploma:"Ver diploma",no_pdf:"PDF no cargado aún",upload:"Sube el archivo para mostrarlo",
+    name_lbl:"Nombre",email_lbl:"Email",msg_lbl:"Mensaje",
+    cert_titles:[
+      "Web Development with Python",
+      "AI-Enabled Applications for Customer Service",
+      "Python 101 for Data Science",
+      "Advanced Classification using Machine Learning in HealthCare",
+      "Machine Learning for Data Science Projects",
+      "Artificial Intelligence Fundamentals",
+      "Model Context Protocol: Advanced topics",
+      "Automatización & IA con n8n",
+      "Especialización en Machine Learning",
+    ],
+    cert_issuers:[
+      "IBM",
+      "IBM",
+      "Cognitive Class",
+      "Cognitive Class",
+      "IBM",
+      "IBM",
+      "Anthropic",
+      "Datapath",
+      "DMC Perú",
+    ],
+    cert_dates:["2026-02-03","2026-01-28","2026-01-27","2026-01-27","2026-01-27","2026-01-27","2025-12-26","2025-06-25","2025-02-23"],
+    cert_descs:[
+      "Fundamentos de desarrollo web con Python para aplicaciones y servicios backend.",
+      "Diseño de aplicaciones de IA orientadas a atención al cliente con automatización inteligente.",
+      "Bases de Python orientadas a ciencia de datos, manipulación y análisis de información.",
+      "Clasificación avanzada aplicada a salud usando técnicas de aprendizaje automático.",
+      "Metodologías y ciclo de vida de proyectos de ciencia de datos con ML.",
+      "Fundamentos de inteligencia artificial, conceptos clave y aplicaciones reales.",
+      "Temas avanzados de Model Context Protocol para integración y orquestación de agentes.",
+      "Automatización de flujos con n8n e integración de IA en procesos de negocio.",
+      "Especialización práctica en machine learning aplicada a proyectos reales.",
+    ],
+    cert_pdfs:[
+      "assets/certificados/Web Development with Python.pdf",
+      "assets/certificados/AI-Enabled Applications for Customer Service.pdf",
+      "assets/certificados/python 101 for data science.pdf",
+      "assets/certificados/Advanced Classification using Machine Learning in HealthCare.pdf",
+      "assets/certificados/Machine Learning for Data Science Projects.pdf",
+      "assets/certificados/Artificial Intelligence Fundamentals.pdf",
+      "assets/certificados/mcp.pdf",
+      "assets/certificados/automatizacion e ia con n8n.pdf",
+      "assets/certificados/especializacion en ml.pdf",
+    ],
+  },
+  en:{
+    nav:["Home","About","Skills","Services","Certificates","Projects","Contact"],
+    greeting:"Hi! I'm",
+    roles:["Data Scientist","ML Engineer","AI Engineer"],
+    bio:"Passionate about building intelligent systems that solve real problems. I work at the intersection of machine learning, NLP and large-scale data analysis.",
+    contact_btn:"Contact Me",download:"Download CV",
+    view_projects:"View projects",
+    about_title:"About Me",about_bio1:"Systems Engineer specialized in the design and implementation of applied Artificial Intelligence solutions, with experience in Machine Learning, Deep Learning, NLP, and LLM-based applications, including advanced automation with agentic AI. I build end-to-end solutions, from modeling and evaluation to integration in production environments, with a strong focus on scalability, traceability, and explainability.",
+    about_bio2:"I bring solid experience in API architecture, data product development, and model deployment under MLOps best practices. My approach combines technical rigor and business vision to transform data into actionable decisions, optimize processes, and generate sustainable value.",
+    about_bio3:"I have led digital health projects, including AI-assisted screening for oral cancer and leukemia, integrating quality standards, technical documentation, and experimental validation. I complement my profile with project management aligned to PMBOK principles and agile methodologies, ensuring efficient execution, high-impact delivery, and alignment with strategic objectives.",
+    role_subtitle:"passionate about AI",
+    edu_value:"Computer and Systems Engineering",
+    loc_value:"Trujillo, La Libertad, Peru",
+    exp_value:"2+ years in Data Science & ML",
+    edu:"Education",loc:"Location",exp:"Experience",
+    skills_title:"Skills & Expertise",services_title:"What I Do",
+    certs_title:"Certifications",projects_title:"Projects",
+    contact_title:"Contact",contact_sub:"Have an interesting project?",
+    contact_desc:"I'm available for freelance projects, consulting and full-time positions.",
+    send:"Send →",sent_title:"Message sent!",sent_sub:"I'll get back to you soon.",
+    metrics:[{v:"15+",l:"Completed Projects"},{v:"2+",l:"Years of Experience"}],
+    all:"All",see:"See project →",
+    svc_names:["Machine Learning","NLP & LLMs","Computer Vision","Data Analysis","MLOps & Deployment","AI APIs"],
+    svc_descs:[
+      "Predictive models and classifiers with scikit-learn, XGBoost and neural networks. From analysis to production.",
+      "Sentiment analysis, RAG chatbots, transformer fine-tuning and pipelines with LangChain and LangGraph.",
+      "Object detection and classification with PyTorch, YOLOv8 and OpenCV. Explainable models with Score-CAM.",
+      "Interactive dashboards, automated reports and visualizations with Plotly, Seaborn and Power BI.",
+      "Reproducible pipelines, MLflow monitoring, Docker and Kubernetes deployment on GCP or Azure.",
+      "RESTful APIs to expose ML models. Swagger docs and latency optimization with FastAPI, Flask, or Django.",
+    ],
+    svc_tags:[["Supervised","Unsupervised","XGBoost"],["Hugging Face","LangChain","RAG"],["YOLO","OpenCV","Score-CAM"],["Plotly","Pandas","Power BI"],["Docker","Kubernetes","MLflow"],["FastAPI","Flask","Django","REST","Swagger"]],
+    diploma:"View diploma",no_pdf:"PDF not loaded yet",upload:"Upload the file to display it",
+    name_lbl:"Name",email_lbl:"Email",msg_lbl:"Message",
+    cert_titles:[
+      "Web Development with Python",
+      "AI-Enabled Applications for Customer Service",
+      "Python 101 for Data Science",
+      "Advanced Classification using Machine Learning in HealthCare",
+      "Machine Learning for Data Science Projects",
+      "Artificial Intelligence Fundamentals",
+      "Model Context Protocol: Advanced topics",
+      "Automation & AI with n8n",
+      "Machine Learning Specialization",
+    ],
+    cert_issuers:[
+      "IBM",
+      "IBM",
+      "Cognitive Class",
+      "Cognitive Class",
+      "IBM",
+      "IBM",
+      "Anthropic",
+      "Datapath",
+      "DMC Peru",
+    ],
+    cert_dates:["2026-02-03","2026-01-28","2026-01-27","2026-01-27","2026-01-27","2026-01-27","2025-12-26","2025-06-25","2025-02-23"],
+    cert_descs:[
+      "Web development foundations with Python for application and backend workflows.",
+      "Design of AI-enabled customer service applications with intelligent automation.",
+      "Core Python skills for data science, data processing and analysis.",
+      "Advanced classification in healthcare using machine learning techniques.",
+      "End-to-end machine learning lifecycle for data science projects.",
+      "Core artificial intelligence concepts and practical applications.",
+      "Advanced topics in Model Context Protocol for agent integration workflows.",
+      "Workflow automation with n8n and AI integrations for business processes.",
+      "Applied machine learning specialization for real-world projects.",
+    ],
+    cert_pdfs:[
+      "assets/certificados/Web Development with Python.pdf",
+      "assets/certificados/AI-Enabled Applications for Customer Service.pdf",
+      "assets/certificados/python 101 for data science.pdf",
+      "assets/certificados/Advanced Classification using Machine Learning in HealthCare.pdf",
+      "assets/certificados/Machine Learning for Data Science Projects.pdf",
+      "assets/certificados/Artificial Intelligence Fundamentals.pdf",
+      "assets/certificados/mcp.pdf",
+      "assets/certificados/automatizacion e ia con n8n.pdf",
+      "assets/certificados/especializacion en ml.pdf",
+    ],
+  }
+};
+
+const DATA={
+  education:"Ingeniería de Computación y Sistemas",
+  location:"Trujillo, La Libertad, Perú",
+  experience:"2+ años en Data Science & ML",
+  email:"ernestosaniel123@gmail.com",phone:"+51 947 909 792",
+  linkedin:"https://www.linkedin.com/in/ernesto-saniel-castro-lozano-96ba2b268",github:"https://github.com/ErnestoSCL",
+  whatsapp:"https://wa.me/51947909792",instagram:"https://www.instagram.com/lozano_sann/",cv:"#",
+  skillGroups:[
+    {title:"Machine Learning",items:[
+      {name:"scikit-learn",icon:"devicon-scikitlearn-plain colored",pct:92},
+      {name:"TensorFlow",icon:"devicon-tensorflow-original colored",pct:85},
+      {name:"PyTorch",icon:"devicon-pytorch-original colored",pct:88},
+      {name:"Keras",icon:"devicon-keras-plain colored",pct:83},
+    ]},
+    {title:"NLP & LLMs",items:[
+      {name:"Hugging Face",img:"https://cdn.simpleicons.org/huggingface/FF9D00",pct:87},
+      {name:"LangChain",img:"https://cdn.simpleicons.org/langchain/1C3C3C",pct:82},
+      {name:"LangGraph",img:"https://cdn.simpleicons.org/langgraph/4B7BEC",pct:76},
+      {name:"Transformers",img:"https://cdn.simpleicons.org/huggingface/FF9D00",pct:80},
+    ]},
+    {title:"Data & Análisis",items:[
+      {name:"Pandas",img:"assets/logos/pandas.svg",pct:95},
+      {name:"NumPy",img:"assets/logos/numpy.svg",pct:93},
+      {name:"Matplotlib",icon:"devicon-matplotlib-plain colored",pct:88},
+      {name:"Seaborn",img:"assets/logos/seaborn.svg",pct:84},
+    ]},
+    {title:"Visualización",items:[
+      {name:"Plotly",icon:"devicon-plotly-plain colored",pct:84},
+      {name:"Dash",img:"https://cdn.simpleicons.org/plotly/3F4F75",pct:76},
+      {name:"Streamlit",img:"https://cdn.simpleicons.org/streamlit/FF4B4B",pct:90},
+      {name:"Gradio",img:"https://cdn.simpleicons.org/gradio/F97316",pct:82},
+    ]},
+    {title:"Visión CV",items:[
+      {name:"OpenCV",icon:"devicon-opencv-plain colored",pct:82},
+      {name:"YOLO",img:"https://cdn.simpleicons.org/yolo/7A3EFF",pct:78},
+      {name:"Score-CAM",img:"assets/logos/scorecam.svg",pct:74},
+      {name:"ONNX",img:"https://cdn.simpleicons.org/onnx/005CED",pct:72},
+    ]},
+    {title:"Backend & APIs",items:[
+      {name:"FastAPI",icon:"devicon-fastapi-plain colored",pct:88},
+      {name:"Flask",icon:"devicon-flask-original colored",pct:85},
+      {name:"Django",icon:"devicon-django-plain colored",pct:78},
+      {name:"Swagger",icon:"devicon-swagger-plain colored",pct:80},
+    ]},
+    {title:"Frontend",items:[
+      {name:"React",icon:"devicon-react-original colored",pct:72},
+      {name:"Angular",icon:"devicon-angularjs-plain colored",pct:65},
+      {name:"Streamlit",img:"https://cdn.simpleicons.org/streamlit/FF4B4B",pct:90},
+      {name:"Gradio",img:"https://cdn.simpleicons.org/gradio/F97316",pct:82},
+    ]},
+    {title:"Bases de Datos",items:[
+      {name:"PostgreSQL",icon:"devicon-postgresql-plain colored",pct:84},
+      {name:"MySQL",icon:"devicon-mysql-original colored",pct:80},
+      {name:"MongoDB",icon:"devicon-mongodb-plain colored",pct:76},
+      {name:"Supabase",icon:"devicon-supabase-plain colored",pct:72},
+    ]},
+    {title:"MLOps & Cloud",items:[
+      {name:"Docker",icon:"devicon-docker-plain colored",pct:83},
+      {name:"Kubernetes",icon:"devicon-kubernetes-plain colored",pct:70},
+      {name:"GCP",icon:"devicon-googlecloud-plain colored",pct:76},
+      {name:"Azure",icon:"devicon-azure-plain colored",pct:72},
+    ]},
+    {title:"Data Engineering",items:[
+      {name:"Apache Spark",icon:"devicon-apachespark-original colored",pct:78},
+      {name:"Databricks",img:"https://cdn.simpleicons.org/databricks/FF3621",pct:74},
+      {name:"MLflow",img:"https://cdn.simpleicons.org/mlflow/0194E2",pct:82},
+      {name:"Power BI",img:"assets/logos/powerbi.svg",pct:80},
+    ]},
+    {title:"Lenguajes",items:[
+      {name:"Python",icon:"devicon-python-plain colored",pct:95},
+      {name:"Java",icon:"devicon-java-plain colored",pct:75},
+      {name:"JavaScript",icon:"devicon-javascript-plain colored",pct:82},
+      {name:"TypeScript",icon:"devicon-typescript-plain colored",pct:78},
+    ]},
+    {title:"Otros",items:[
+      {name:"Git",icon:"devicon-git-plain colored",pct:92},
+      {name:"Jupyter",icon:"devicon-jupyter-plain colored",pct:90},
+      {name:"SQL",icon:"devicon-azuresqldatabase-plain colored",pct:88},
+      {name:"Pytest",img:"https://cdn.simpleicons.org/pytest/0A9EDC",pct:80},
+    ]},
+  ],
+  projects:[
+    {id:1,title:"TEAnimo",category:"ML/DL",desc:"Aplicación de tamizaje para TEA con formulario clínico, reporte estructurado y resultados de evaluación asistidos por modelos de ML.",tags:["React","Tailwind CSS","FastAPI","PostgreSQL","Pandas","Joblib"],image:"assets/proyectos/teanimo principal.png",demo:"https://page.teanimo.tech/",github:"https://github.com/TEAnimo/Frontend",githubBackend:"https://github.com/TEAnimo/Backend",status:"Open Source",year:"2025"},
+    {id:2,title:"Predicción de Autismo por Fusión de Embeddings",category:"ML/DL",desc:"Aplicación de predicción de autismo basada en fusión de embeddings y evaluación supervisada para apoyar decisiones de tamizaje temprano.",tags:["Python","PyTorch","FastAPI","Streamlit","PostgreSQL","Kubernetes"],image:"assets/proyectos/app_prediccion_autismo_fusion_embeddings principal.png",demo:"https://app-prediccion-autismo-fusion-embeddings.streamlit.app/",github:"https://github.com/ErnestoSCL/app_prediccion_autismo_fusion_embeddings",status:"Open Source",year:"2025"},
+    {id:3,title:"Clasificación de Cáncer Bucal",category:"CV",desc:"Modelo de clasificación para apoyo al tamizaje de cáncer bucal con métricas de rendimiento y flujo de inferencia reproducible.",tags:["Python","PyTorch","Flask","Streamlit","Docker","PostgreSQL"],image:"assets/proyectos/clasificacion-cancer-bucal principal.png",demo:"https://clasificacion-cancer-bucal.streamlit.app/",github:"https://github.com/ErnestoSCL/clasificacion-cancer-bucal",status:"Open Source",year:"2025"},
+    {id:4,title:"Asistente de Tamizaje de Leucemia",category:"ML/DL",desc:"Asistente clínico de apoyo al tamizaje de leucemia con entrenamiento, trazabilidad de experimentos y panel de métricas.",tags:["Python","PyTorch","Flask","Streamlit","MLflow","PostgreSQL"],image:"assets/proyectos/asistente-tamizaje-leucemia principal.png",demo:"https://asistente-tamizaje-leucemia.streamlit.app/",github:"https://github.com/ErnestoSCL/asistente-tamizaje-leucemia",status:"Open Source",year:"2025"},
+    {id:5,title:"Predicción OSCC",category:"CV",desc:"Aplicación para predicción de carcinoma oral de células escamosas (OSCC) con análisis de rendimiento y visualización de resultados.",tags:["Python","PyTorch","FastAPI","Streamlit","Docker","PostgreSQL"],image:"assets/proyectos/app-prediccion-oscc principal.png",demo:"https://app-prediccion-oscc-v1.streamlit.app/",github:"https://github.com/ErnestoSCL/app-prediccion-oscc",status:"Open Source",year:"2025"},
+    {id:6,title:"PneumoVision-AI",category:"CV",desc:"Proyecto de visión computacional para detección asistida en imágenes médicas pulmonares con enfoque en interpretación clínica.",tags:["Python","TensorFlow","Keras","Gradio","NumPy","Pillow"],image:"assets/proyectos/PneumoVision-AI principal.png",demo:"https://huggingface.co/spaces/ErnestoRepos/neumonia_prediction",github:"https://github.com/ErnestoSCL/PneumoVision-AI",status:"Open Source",year:"2025"},
+    {id:7,title:"DentalVision EDA",category:"Data Eng",desc:"Análisis exploratorio de datos para imágenes odontológicas: calidad, distribución, propiedades y revisión visual de dataset.",tags:["Python","Streamlit","Plotly","Pandas","NumPy","SciPy"],image:"assets/proyectos/dentalvision-eda principal.png",demo:"https://dentalvision-eda.streamlit.app/",github:"https://github.com/ErnestoSCL/dentalvision-eda",status:"Open Source",year:"2025"},
+  ],
+  certColors:["#00e5ff","#7c3aed","#10b981","#f59e0b"],
+};
+
+const catColors={NLP:"#00e5ff","ML/DL":"#7c3aed",GenAI:"#f59e0b",CV:"#10b981","Data Eng":"#f43f5e"};
+const statusColors={"Producción":"#10b981","Open Source":"#00e5ff","Portfolio":"#7c3aed"};
+
+// ── Service icons (SVG) ───────────────────────────────────────────────────
+const SvcIcons=[
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>,
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>,
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>,
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>,
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>,
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>,
+];
+
+// Badge icons (no emoji) for About photo
+const BadgeIcons=[
+  {icon:<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/></svg>,label:"ML Engineer"},
+  {icon:<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>,label:"Data Science"},
+];
+
+// ── Nav ───────────────────────────────────────────────────────────────────
+function Nav({tweaks,lang,setLang}) {
+  const [sc,setSc]=useState(false);
+  const t=T[lang];
+  useEffect(()=>{const fn=()=>setSc(window.scrollY>40);window.addEventListener('scroll',fn);return()=>window.removeEventListener('scroll',fn);},[]);
+  const hrefs=["#hero","#about","#skills","#services","#certs","#projects","#contact"];
+  return (
+    <nav className="nav-root" style={{position:'fixed',top:0,left:0,right:0,zIndex:100,height:60,padding:'0 5vw',display:'flex',alignItems:'center',justifyContent:'space-between',background:sc?'rgba(7,9,15,.95)':'transparent',backdropFilter:sc?'blur(14px)':'none',borderBottom:sc?`1px solid ${tweaks.accent}22`:'1px solid transparent',transition:'all .3s'}}>
+      <span style={{fontFamily:'var(--mono)',fontSize:14,color:tweaks.accent}}><span style={{opacity:.5}}>~/</span>ernesto</span>
+      <div className="nav-links" style={{display:'flex',gap:'1.4rem',alignItems:'center',flexWrap:'wrap'}}>
+        {t.nav.map((l,i)=>(
+          <a key={i} href={hrefs[i]} style={{color:'var(--muted)',fontSize:13,fontWeight:500,transition:'color .2s'}}
+            onMouseEnter={e=>e.target.style.color=tweaks.accent} onMouseLeave={e=>e.target.style.color='var(--muted)'}>{l}</a>
+        ))}
+        <button onClick={()=>setLang(l=>l==='es'?'en':'es')} style={{background:'transparent',border:`1px solid ${tweaks.accent}44`,borderRadius:6,padding:'4px 10px',color:'var(--text)',fontSize:12,cursor:'pointer',fontFamily:'var(--mono)',display:'flex',alignItems:'center',gap:6,transition:'all .2s'}}
+          onMouseEnter={e=>e.currentTarget.style.borderColor=tweaks.accent} onMouseLeave={e=>e.currentTarget.style.borderColor=`${tweaks.accent}44`}>
+          {lang==='es'?'🇵🇪 ES':'🇺🇸 EN'}
+        </button>
+      </div>
+    </nav>
+  );
+}
+
+// ── Hero ──────────────────────────────────────────────────────────────────
+function Hero({tweaks,lang}) {
+  const t=T[lang];
+  const [ri,setRi]=useState(0);
+  const [typed,setTyped]=useState('');
+  const [del,setDel]=useState(false);
+  useEffect(()=>{
+    const role=t.roles[ri];let tm;
+    if(!del&&typed.length<role.length)tm=setTimeout(()=>setTyped(role.slice(0,typed.length+1)),60);
+    else if(!del&&typed.length===role.length)tm=setTimeout(()=>setDel(true),1800);
+    else if(del&&typed.length>0)tm=setTimeout(()=>setTyped(typed.slice(0,-1)),35);
+    else if(del&&typed.length===0){setDel(false);setRi(i=>(i+1)%t.roles.length);}
+    return()=>clearTimeout(tm);
+  },[typed,del,ri,lang]);
+  useEffect(()=>{setTyped('');setDel(false);setRi(0);},[lang]);
+
+  return (
+    <section id="hero" data-screen-label="Hero" style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',padding:'100px 10vw 80px',textAlign:'center',flexDirection:'column',position:'relative'}}>
+      <div style={{animation:'fadeUp .7s ease .1s forwards',opacity:0,maxWidth:720}}>
+        <div style={{fontFamily:'var(--mono)',fontSize:14,color:tweaks.accent,marginBottom:20,letterSpacing:'.08em'}}>{t.greeting}</div>
+        <h1 className="hero-name" style={{fontSize:'clamp(3rem,7vw,5.5rem)',fontWeight:700,letterSpacing:'-.02em',lineHeight:1.0,marginBottom:10}}>
+          <span style={{color:'var(--text)'}}>Ernesto </span><span style={{color:'var(--text)'}}>Saniel</span><br/>
+          <span style={{color:tweaks.accent}}>Castro Lozano</span>
+        </h1>
+        <div style={{fontFamily:'var(--mono)',fontSize:'clamp(16px,2.2vw,22px)',color:'var(--muted)',marginBottom:28,minHeight:34}}>
+          {typed}<span style={{animation:'blink 1s step-end infinite',color:tweaks.accent}}>|</span>
+        </div>
+        <p className="hero-bio" style={{fontSize:16,lineHeight:1.8,color:'#94a3b8',maxWidth:560,margin:'0 auto 40px',textWrap:'pretty'}}>{t.bio}</p>
+
+        {/* Metrics */}
+        <div style={{display:'flex',gap:16,marginBottom:40,justifyContent:'center',flexWrap:'wrap'}}>
+          {t.metrics.map(m=>(
+            <div key={m.l} style={{background:'rgba(13,17,23,.7)',backdropFilter:'blur(10px)',border:`1px solid ${tweaks.accent}22`,borderRadius:12,padding:'18px 32px',textAlign:'center'}}>
+              <div style={{fontSize:30,fontWeight:700,color:tweaks.accent,fontFamily:'var(--mono)'}}>{m.v}</div>
+              <div style={{fontSize:12,color:'var(--muted)',marginTop:4}}>{m.l}</div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{display:'flex',gap:12,justifyContent:'center',flexWrap:'wrap',marginBottom:32}}>
+          <a href="#contact" style={{display:'inline-flex',alignItems:'center',gap:8,padding:'12px 30px',background:tweaks.accent,color:'#07090f',borderRadius:999,fontWeight:700,fontSize:14,transition:'all .2s'}}
+            onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-2px)';e.currentTarget.style.boxShadow=`0 8px 28px ${tweaks.accent}44`;}}
+            onMouseLeave={e=>{e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='none';}}>{t.contact_btn}</a>
+          <a href="#projects" style={{display:'inline-flex',alignItems:'center',gap:8,padding:'12px 28px',border:`1px solid ${tweaks.accent}66`,color:tweaks.accent,borderRadius:999,fontWeight:600,fontSize:14,transition:'all .2s'}}
+            onMouseEnter={e=>{e.currentTarget.style.background=`${tweaks.accent}14`;e.currentTarget.style.transform='translateY(-2px)';}}
+            onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.transform='none';}}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"/></svg>
+            {t.view_projects}
+          </a>
+          <a href={DATA.cv} style={{display:'inline-flex',alignItems:'center',gap:8,padding:'12px 28px',border:`1px solid ${tweaks.accent}55`,color:tweaks.accent,borderRadius:999,fontWeight:600,fontSize:14,transition:'all .2s'}}
+            onMouseEnter={e=>e.currentTarget.style.background=`${tweaks.accent}12`} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+            <DlIcon/>{t.download}
+          </a>
+        </div>
+
+        {/* Social */}
+        <div style={{display:'flex',gap:10,justifyContent:'center'}}>
+          {[
+            {href:DATA.linkedin,ic:<LinkedInIc/>},{href:DATA.github,ic:<GithubIc/>},
+            {href:DATA.whatsapp,ic:<WhatsappIc/>},{href:DATA.instagram,ic:<InstagramIc/>},
+          ].map((s,i)=>(
+            <a key={i} href={s.href} target="_blank" rel="noopener noreferrer"
+              style={{width:42,height:42,borderRadius:'50%',border:`1px solid ${tweaks.accent}33`,display:'flex',alignItems:'center',justifyContent:'center',color:'var(--muted)',transition:'all .2s'}}
+              onMouseEnter={e=>{e.currentTarget.style.borderColor=tweaks.accent;e.currentTarget.style.color=tweaks.accent;e.currentTarget.style.background=`${tweaks.accent}12`;}}
+              onMouseLeave={e=>{e.currentTarget.style.borderColor=`${tweaks.accent}33`;e.currentTarget.style.color='var(--muted)';e.currentTarget.style.background='transparent';}}>
+              {s.ic}
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── About ─────────────────────────────────────────────────────────────────
+function About({tweaks,lang}) {
+  const t=T[lang];
+  return (
+    <section id="about" data-screen-label="Sobre mí" style={{padding:'100px 10vw',borderTop:`1px solid ${tweaks.accent}18`}}>
+      <CenteredTitle accent={tweaks.accent} title={t.about_title}/>
+      <div className="about-grid" style={{display:'grid',gridTemplateColumns:'1fr 1.5fr',gap:'5vw',alignItems:'start',maxWidth:1000,margin:'0 auto'}}>
+        <div style={{position:'relative'}}>
+          <div style={{width:'100%',maxWidth:320,aspectRatio:'3/4',borderRadius:20,background:'var(--bg3)',border:`2px solid ${tweaks.accent}33`,overflow:'hidden'}}>
+            <img src="assets/foto/foto de perfil.png" alt="Foto de perfil" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
+          </div>
+          {BadgeIcons.map((b,i)=>(
+            <div key={i} className="about-badge" style={{position:'absolute',...(i===0?{top:'8%',right:'-12%'}:{bottom:'22%',left:'-12%'}),background:'rgba(13,17,23,.9)',backdropFilter:'blur(10px)',border:`1px solid ${tweaks.accent}44`,borderRadius:10,padding:'8px 14px',display:'flex',alignItems:'center',gap:8,fontSize:12,fontWeight:600,color:tweaks.accent,animation:`float ${3+i}s ease-in-out infinite`,animationDelay:`${i*.8}s`,whiteSpace:'nowrap'}}>
+              {b.icon}{b.label}
+            </div>
+          ))}
+          <div className="about-xp-badge" style={{position:'absolute',bottom:10,right:-10,background:tweaks.accent,color:'#07090f',borderRadius:14,padding:'14px 20px',textAlign:'center',fontWeight:700}}>
+            <div style={{fontSize:24,fontFamily:'var(--mono)'}}>2+</div>
+            <div style={{fontSize:10,fontWeight:600,lineHeight:1.3}}>{lang==='es'?'Años de\nExperiencia':'Years of\nExperience'}</div>
+          </div>
+        </div>
+        <div>
+          <h3 style={{fontSize:26,fontWeight:700,marginBottom:18,lineHeight:1.3}}>Data Scientist & ML Engineer<br/><span style={{color:tweaks.accent}}>{t.role_subtitle}</span></h3>
+          <p style={{fontSize:15,color:'#94a3b8',lineHeight:1.85,marginBottom:14,textWrap:'pretty'}}>{t.about_bio1}</p>
+          <p style={{fontSize:15,color:'#94a3b8',lineHeight:1.85,marginBottom:28,textWrap:'pretty'}}>{t.about_bio2}</p>
+          {t.about_bio3 && <p style={{fontSize:15,color:'#94a3b8',lineHeight:1.85,marginBottom:28,textWrap:'pretty'}}>{t.about_bio3}</p>}
+          <div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:28}}>
+            {[{ic:<EduIc/>,l:t.edu,v:t.edu_value},{ic:<LocIc/>,l:t.loc,v:t.loc_value},{ic:<BriefIc/>,l:t.exp,v:t.exp_value}].map(r=>(
+              <div key={r.l} style={{display:'flex',alignItems:'center',gap:14,padding:'13px 18px',background:'var(--bg3)',border:`1px solid ${tweaks.accent}18`,borderRadius:12}}>
+                <div style={{width:38,height:38,borderRadius:10,background:`${tweaks.accent}18`,display:'flex',alignItems:'center',justifyContent:'center',color:tweaks.accent,flexShrink:0}}>{r.ic}</div>
+                <div><div style={{fontWeight:600,fontSize:13,marginBottom:2}}>{r.l}</div><div style={{fontSize:12,color:'var(--muted)'}}>{r.v}</div></div>
+              </div>
+            ))}
+          </div>
+          <a href={DATA.cv} style={{display:'inline-flex',alignItems:'center',gap:8,padding:'11px 26px',border:`1px solid ${tweaks.accent}55`,color:tweaks.accent,borderRadius:999,fontWeight:600,fontSize:14,transition:'all .2s'}}
+            onMouseEnter={e=>{e.currentTarget.style.background=`${tweaks.accent}12`;e.currentTarget.style.transform='translateY(-2px)';}} onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.transform='none';}}>
+            <DlIcon/>{t.download}
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Skills ────────────────────────────────────────────────────────────────
+function Skills({tweaks,lang}) {
+  const t=T[lang];
+  const groupLabelMap={
+    es:{
+      "Machine Learning":"Machine Learning",
+      "NLP & LLMs":"NLP & LLMs",
+      "Data & Análisis":"Data & Análisis",
+      "Visualización":"Visualización",
+      "Visión CV":"Visión CV",
+      "Backend & APIs":"Backend & APIs",
+      "Frontend":"Frontend",
+      "Bases de Datos":"Bases de Datos",
+      "MLOps & Cloud":"MLOps & Cloud",
+      "Data Engineering":"Data Engineering",
+      "Lenguajes":"Lenguajes",
+      "Otros":"Otros",
+    },
+    en:{
+      "Machine Learning":"Machine Learning",
+      "NLP & LLMs":"NLP & LLMs",
+      "Data & Análisis":"Data & Analytics",
+      "Visualización":"Visualization",
+      "Visión CV":"Computer Vision",
+      "Backend & APIs":"Backend & APIs",
+      "Frontend":"Frontend",
+      "Bases de Datos":"Databases",
+      "MLOps & Cloud":"MLOps & Cloud",
+      "Data Engineering":"Data Engineering",
+      "Lenguajes":"Languages",
+      "Otros":"Other",
+    }
+  };
+
+  return (
+    <section id="skills" data-screen-label="Skills" style={{padding:'100px 10vw',borderTop:`1px solid ${tweaks.accent}18`}}>
+      <CenteredTitle accent={tweaks.accent} title={t.skills_title}/>
+      <div className="skills-grid" style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:18,maxWidth:1100,margin:'0 auto'}}>
+        {DATA.skillGroups.map(g=><SkillGroup key={g.title} group={g} accent={tweaks.accent} title={groupLabelMap[lang][g.title]||g.title}/>)}
+      </div>
+    </section>
+  );
+}
+
+function SkillGroup({group,accent,title}) {
+  const [vis,setVis]=useState(false);
+  const ref=useRef();
+  useEffect(()=>{const obs=new IntersectionObserver(([e])=>{if(e.isIntersecting)setVis(true)},{threshold:.3});if(ref.current)obs.observe(ref.current);return()=>obs.disconnect();},[]);
+  return (
+    <div ref={ref} style={{background:'var(--bg3)',border:`1px solid ${accent}22`,borderRadius:16,padding:'24px 22px'}}>
+      <h3 style={{fontSize:15,fontWeight:700,color:accent,marginBottom:20}}>{title||group.title}</h3>
+      <div style={{display:'flex',flexDirection:'column',gap:16}}>
+        {group.items.map(it=>(
+          <div key={it.name} style={{display:'flex',alignItems:'center',gap:12}}>
+            <div style={{width:28,height:28,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+              {it.icon ? <i className={it.icon} style={{fontSize:24,...(it.style||{})}}/> :
+                it.img ? <img src={it.img} alt={it.name} style={{width:22,height:22,objectFit:'contain'}}/> :
+                <div style={{width:28,height:28,borderRadius:6,background:`${accent}18`,border:`1px solid ${accent}33`,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'var(--mono)',fontSize:it.letter?.length>2?8:11,fontWeight:700,color:accent}}>{it.letter}</div>}
+            </div>
+            <div style={{flex:1}}>
+              <div style={{fontSize:13,fontWeight:500,marginBottom:5}}>{it.name}</div>
+              <div style={{height:4,background:'var(--bg)',borderRadius:999,overflow:'hidden'}}>
+                <div style={{height:'100%',width:vis?`${it.pct}%`:'0%',background:`linear-gradient(90deg,${accent},${accent}77)`,borderRadius:999,transition:'width 1.2s cubic-bezier(.4,0,.2,1)'}}/>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Services ──────────────────────────────────────────────────────────────
+function Services({tweaks,lang}) {
+  const t=T[lang];
+  return (
+    <section id="services" data-screen-label="Servicios" style={{padding:'100px 10vw',borderTop:`1px solid ${tweaks.accent}18`}}>
+      <CenteredTitle accent={tweaks.accent} title={t.services_title}/>
+      <div className="services-grid" style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:18,maxWidth:1100,margin:'0 auto'}}>
+        {t.svc_names.map((name,i)=><SvcCard key={i} name={name} desc={t.svc_descs[i]} tags={t.svc_tags[i]} icon={SvcIcons[i]} accent={tweaks.accent}/>)}
+      </div>
+    </section>
+  );
+}
+
+function SvcCard({name,desc,tags,icon,accent}) {
+  const [h,setH]=useState(false);
+  return (
+    <div onMouseEnter={()=>setH(true)} onMouseLeave={()=>setH(false)} style={{background:h?'var(--bg4)':'var(--bg3)',border:`1px solid ${h?accent+'55':'var(--border)'}`,borderRadius:16,padding:'30px 26px',transition:'all .25s',transform:h?'translateY(-4px)':'none',boxShadow:h?`0 12px 40px ${accent}12`:'none'}}>
+      <div style={{width:58,height:58,borderRadius:'50%',background:`${accent}18`,border:`1px solid ${accent}33`,display:'flex',alignItems:'center',justifyContent:'center',color:accent,marginBottom:18}}>{icon}</div>
+      <h3 style={{fontSize:16,fontWeight:700,marginBottom:10}}>{name}</h3>
+      <p style={{fontSize:13,color:'#94a3b8',lineHeight:1.72,marginBottom:16,textWrap:'pretty'}}>{desc}</p>
+      <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
+        {tags.map(tg=><span key={tg} style={{fontFamily:'var(--mono)',fontSize:10,padding:'3px 10px',background:`${accent}12`,border:`1px solid ${accent}33`,borderRadius:999,color:accent}}>{tg}</span>)}
+      </div>
+    </div>
+  );
+}
+
+// ── Certs ─────────────────────────────────────────────────────────────────
+function Certs({tweaks,lang}) {
+  const t=T[lang];
+  const [preview,setPreview]=useState(null);
+  const certs=t.cert_titles.map((title,i)=>({
+    id:i+1,
+    title,
+    issuer:t.cert_issuers[i],
+    desc:t.cert_descs[i],
+    date:(t.cert_dates&&t.cert_dates[i])||"",
+    pdf:(t.cert_pdfs&&t.cert_pdfs[i])||null,
+    color:DATA.certColors[i % DATA.certColors.length],
+  }));
+  return (
+    <section id="certs" data-screen-label="Certificados" style={{padding:'100px 10vw',borderTop:`1px solid ${tweaks.accent}18`}}>
+      <CenteredTitle accent={tweaks.accent} title={t.certs_title}/>
+      <div className="certs-grid" style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(270px,1fr))',gap:18,maxWidth:1100,margin:'0 auto'}}>
+        {certs.map(c=><CertCard key={c.id} cert={c} t={t} onPreview={()=>setPreview(c)}/>)}
+      </div>
+      {preview&&<CertModal cert={preview} t={t} onClose={()=>setPreview(null)}/>}
+    </section>
+  );
+}
+
+function CertCard({cert,t,onPreview}) {
+  const [h,setH]=useState(false);
+  return (
+    <div onMouseEnter={()=>setH(true)} onMouseLeave={()=>setH(false)} style={{background:h?'var(--bg4)':'var(--bg3)',border:`1px solid ${h?cert.color+'55':'var(--border)'}`,borderRadius:16,padding:'26px',transition:'all .25s',transform:h?'translateY(-4px)':'none',position:'relative',overflow:'hidden',display:'flex',flexDirection:'column',gap:12}}>
+      <div style={{position:'absolute',top:0,left:0,right:0,height:3,background:`linear-gradient(90deg,${cert.color},${cert.color}44)`,borderRadius:'16px 16px 0 0'}}/>
+      <div style={{width:46,height:46,borderRadius:12,background:`${cert.color}18`,border:`1px solid ${cert.color}44`,display:'flex',alignItems:'center',justifyContent:'center'}}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={cert.color} strokeWidth="1.8"><circle cx="12" cy="8" r="6"/><path d="M8 14l-2 7 6-3 6 3-2-7"/></svg>
+      </div>
+      <div><h3 style={{fontSize:14,fontWeight:600,lineHeight:1.3,marginBottom:3}}>{cert.title}</h3>
+        <div style={{fontFamily:'var(--mono)',fontSize:10,color:cert.color}}>{cert.issuer}</div>
+        <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--muted)',marginTop:1}}>{cert.date}</div>
+      </div>
+      <p style={{fontSize:12,color:'#94a3b8',lineHeight:1.65,flexGrow:1,display:'-webkit-box',WebkitLineClamp:3,WebkitBoxOrient:'vertical',overflow:'hidden'}}>{cert.desc}</p>
+      <button onClick={onPreview} style={{alignSelf:'flex-start',display:'inline-flex',alignItems:'center',gap:6,padding:'6px 14px',background:'transparent',border:`1px solid ${cert.color}55`,color:cert.color,borderRadius:6,fontFamily:'var(--font)',fontWeight:600,fontSize:11,cursor:'pointer',transition:'background .2s'}}
+        onMouseEnter={e=>e.currentTarget.style.background=`${cert.color}12`} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+        {t.diploma}
+      </button>
+    </div>
+  );
+}
+
+function CertModal({cert,t,onClose}) {
+  useEffect(()=>{const fn=e=>e.key==='Escape'&&onClose();document.addEventListener('keydown',fn);return()=>document.removeEventListener('keydown',fn);},[]);
+  return (
+    <div onClick={onClose} style={{position:'fixed',inset:0,zIndex:200,background:'rgba(7,9,15,.92)',backdropFilter:'blur(12px)',display:'flex',alignItems:'center',justifyContent:'center',padding:24,animation:'fadeIn .2s ease'}}>
+      <div onClick={e=>e.stopPropagation()} style={{background:'var(--bg2)',border:`1px solid ${cert.color}44`,borderRadius:16,width:'100%',maxWidth:740,maxHeight:'90vh',display:'flex',flexDirection:'column',boxShadow:`0 32px 80px ${cert.color}20`,animation:'slideUp .25s ease',overflow:'hidden'}}>
+        <div style={{padding:'18px 24px',borderBottom:`1px solid ${cert.color}22`,display:'flex',justifyContent:'space-between',alignItems:'flex-start',flexShrink:0}}>
+          <div><div style={{fontFamily:'var(--mono)',fontSize:10,color:cert.color,marginBottom:3}}>{cert.issuer} · {cert.date}</div><h3 style={{fontSize:16,fontWeight:600}}>{cert.title}</h3></div>
+          <button onClick={onClose} style={{background:'transparent',border:'1px solid var(--border)',color:'var(--muted)',cursor:'pointer',borderRadius:6,width:30,height:30,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>✕</button>
+        </div>
+        <div style={{flexGrow:1,minHeight:0,padding:12}}>
+          {cert.pdf?<div style={{background:'#fff',borderRadius:10,overflow:'hidden',border:`1px solid ${cert.color}22`}}><iframe src={cert.pdf + "#view=FitH&zoom=page-width"} style={{width:'100%',height:'54vh',minHeight:340,border:'none'}} title={cert.title}/></div>:(
+            <div style={{height:360,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:12}}>
+              <div style={{width:60,height:60,borderRadius:14,background:`${cert.color}18`,border:`1px solid ${cert.color}44`,display:'flex',alignItems:'center',justifyContent:'center'}}>
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={cert.color} strokeWidth="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+              </div>
+              <p style={{color:'var(--muted)',fontSize:13,textAlign:'center'}}>{t.no_pdf}<br/><span style={{fontFamily:'var(--mono)',fontSize:11,color:cert.color+'88'}}>{t.upload}</span></p>
+            </div>
+          )}
+        </div>
+        <div style={{padding:'14px 24px',borderTop:`1px solid ${cert.color}22`,flexShrink:0}}><p style={{fontSize:12,color:'#94a3b8'}}>{cert.desc}</p></div>
+      </div>
+    </div>
+  );
+}
+
+// ── Projects ──────────────────────────────────────────────────────────────
+function Projects({tweaks,lang}) {
+  const t=T[lang];
+  const [filter,setFilter]=useState('all');
+  const cats=[...new Set(DATA.projects.map(p=>p.category))];
+  const visible=filter==='all'?DATA.projects:DATA.projects.filter(p=>p.category===filter);
+  return (
+    <section id="projects" data-screen-label="Proyectos" style={{padding:'100px 10vw',borderTop:`1px solid ${tweaks.accent}18`}}>
+      <CenteredTitle accent={tweaks.accent} title={t.projects_title}/>
+      <div style={{display:'flex',gap:8,marginBottom:40,justifyContent:'center',flexWrap:'wrap'}}>
+        {[{k:'all',l:t.all},...cats.map(c=>({k:c,l:c}))].map(c=>(
+          <button key={c.k} onClick={()=>setFilter(c.k)} style={{padding:'6px 18px',borderRadius:999,border:`1px solid ${filter===c.k?tweaks.accent:tweaks.accent+'33'}`,background:filter===c.k?`${tweaks.accent}18`:'transparent',color:filter===c.k?tweaks.accent:'var(--muted)',fontFamily:'var(--mono)',fontSize:12,cursor:'pointer',transition:'all .2s'}}>{c.l}</button>
+        ))}
+      </div>
+      <div className="projects-grid" style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(290px,1fr))',gap:18,maxWidth:1100,margin:'0 auto'}}>
+        {visible.map(p=><ProjCard key={p.id} p={p} tweaks={tweaks} see={t.see}/>)}
+      </div>
+    </section>
+  );
+}
+
+function ProjCard({p,tweaks,see}) {
+  const [h,setH]=useState(false);const cc=catColors[p.category]||tweaks.accent;
+  return (
+    <a href={`project.html?id=${p.id}`} onMouseEnter={()=>setH(true)} onMouseLeave={()=>setH(false)}
+      style={{display:'block',textDecoration:'none',color:'inherit',background:h?'var(--bg4)':'var(--bg3)',border:`1px solid ${h?cc+'55':'var(--border)'}`,borderRadius:14,padding:'24px',transition:'all .25s',transform:h?'translateY(-4px)':'none',boxShadow:h?`0 12px 40px ${cc}18`:'none',position:'relative',overflow:'hidden'}}>
+      <div style={{position:'absolute',top:0,left:0,right:0,height:3,background:`linear-gradient(90deg,${cc},${cc}44)`,borderRadius:'14px 14px 0 0'}}/>
+      <div style={{display:'flex',justifyContent:'space-between',marginBottom:12}}>
+        <span style={{fontFamily:'var(--mono)',fontSize:10,padding:'2px 9px',background:`${cc}18`,color:cc,borderRadius:999,border:`1px solid ${cc}33`}}>{p.category}</span>
+        <span style={{display:'flex',alignItems:'center',gap:4,fontSize:10,color:'var(--muted)',fontFamily:'var(--mono)'}}><span style={{width:5,height:5,borderRadius:'50%',background:statusColors[p.status]||tweaks.accent}}/>{p.status}</span>
+      </div>
+      {p.image && <div style={{width:'100%',aspectRatio:'16/9',marginBottom:12,borderRadius:10,overflow:'hidden',border:`1px solid ${cc}22`,background:'var(--bg2)'}}>
+        <img src={p.image} alt={p.title} style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}}/>
+      </div>}
+      <h3 style={{fontSize:16,fontWeight:600,marginBottom:8,lineHeight:1.3}}>{p.title}</h3>
+      <p style={{fontSize:12,color:'#94a3b8',lineHeight:1.65,marginBottom:16,display:'-webkit-box',WebkitLineClamp:3,WebkitBoxOrient:'vertical',overflow:'hidden'}}>{p.desc}</p>
+      <div style={{display:'flex',flexWrap:'wrap',gap:5,marginBottom:16}}>
+        {p.tags.slice(0,4).map(t=><span key={t} style={{fontFamily:'var(--mono)',fontSize:9,padding:'2px 7px',background:'var(--bg)',border:'1px solid var(--border)',borderRadius:4,color:'var(--muted)'}}>{t}</span>)}
+        {p.tags.length>4&&<span style={{fontFamily:'var(--mono)',fontSize:9,color:'var(--muted)'}}>+{p.tags.length-4}</span>}
+      </div>
+      <div style={{fontSize:12,color:cc,fontWeight:500}}>{see}</div>
+    </a>
+  );
+}
+
+// ── Contact ───────────────────────────────────────────────────────────────
+function Contact({tweaks,lang}) {
+  const t=T[lang];
+  const [form,setForm]=useState({name:'',email:'',message:''});
+  const [sent,setSent]=useState(false);
+  const inp={width:'100%',padding:'10px 14px',background:'var(--bg)',border:'1px solid var(--border)',borderRadius:8,color:'var(--text)',fontFamily:'var(--font)',fontSize:14,outline:'none',transition:'border-color .2s'};
+  return (
+    <section id="contact" data-screen-label="Contacto" style={{padding:'100px 10vw 120px',borderTop:`1px solid ${tweaks.accent}18`}}>
+      <CenteredTitle accent={tweaks.accent} title={t.contact_title}/>
+      <div className="contact-grid" style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:48,maxWidth:900,margin:'0 auto'}}>
+        <div>
+          <h3 style={{fontSize:24,fontWeight:700,marginBottom:12,lineHeight:1.3}}>{t.contact_sub} <span style={{color:tweaks.accent}}>🤝</span></h3>
+          <p style={{fontSize:14,color:'#94a3b8',lineHeight:1.75,marginBottom:26,textWrap:'pretty'}}>{t.contact_desc}</p>
+          <div style={{display:'flex',flexDirection:'column',gap:9}}>
+            {[
+              {l:'Email',v:DATA.email,h:`mailto:${DATA.email}`},
+              {l:'WhatsApp',v:DATA.phone,h:DATA.whatsapp},
+              {l:'LinkedIn',v:'linkedin.com/in/ernesto-saniel-castro-lozano-96ba2b268',h:DATA.linkedin},
+              {l:'GitHub',v:'github.com/ErnestoSCL',h:DATA.github},
+              {l:'Instagram',v:'@lozano_sann',h:DATA.instagram},
+            ].map(item=>(
+              <a key={item.l} href={item.h} target="_blank" rel="noopener noreferrer"
+                style={{display:'flex',gap:12,alignItems:'center',padding:'11px 16px',background:'var(--bg3)',border:'1px solid var(--border)',borderRadius:10,transition:'all .2s'}}
+                onMouseEnter={e=>{e.currentTarget.style.borderColor=tweaks.accent+'44';e.currentTarget.style.background='var(--bg4)';}}
+                onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--border)';e.currentTarget.style.background='var(--bg3)';}}>
+                <span style={{fontFamily:'var(--mono)',fontSize:10,color:tweaks.accent,minWidth:65}}>{item.l}</span>
+               <span style={{fontSize:12,color:'#94a3b8'}}>{item.v}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+        {sent?(
+          <div style={{display:'flex',flexDirection:'column',alignItems:'flex-start',justifyContent:'center',gap:10}}>
+            <div style={{width:52,height:52,borderRadius:'50%',background:`${tweaks.accent}18`,display:'flex',alignItems:'center',justifyContent:'center',color:tweaks.accent,fontSize:22}}>✓</div>
+            <h3 style={{fontSize:20,fontWeight:600,color:tweaks.accent}}>{t.sent_title}</h3>
+            <p style={{color:'#94a3b8',fontSize:14}}>{t.sent_sub}</p>
+          </div>
+        ):(
+          <form onSubmit={e=>{e.preventDefault();setSent(true);}} style={{display:'flex',flexDirection:'column',gap:14}}>
+            {[{k:'name',l:t.name_lbl,tp:'text'},{k:'email',l:t.email_lbl,tp:'email'}].map(f=>(
+              <div key={f.k}><label style={{display:'block',fontSize:10,fontFamily:'var(--mono)',color:'var(--muted)',marginBottom:5,letterSpacing:'.06em'}}>{f.l.toUpperCase()}</label>
+                <input type={f.tp} required value={form[f.k]} onChange={e=>setForm(p=>({...p,[f.k]:e.target.value}))} style={inp}
+                  onFocus={e=>e.target.style.borderColor=tweaks.accent+'66'} onBlur={e=>e.target.style.borderColor='var(--border)'}/>
+              </div>
+            ))}
+            <div><label style={{display:'block',fontSize:10,fontFamily:'var(--mono)',color:'var(--muted)',marginBottom:5,letterSpacing:'.06em'}}>{t.msg_lbl.toUpperCase()}</label>
+              <textarea required rows={5} value={form.message} onChange={e=>setForm(p=>({...p,message:e.target.value}))} style={{...inp,resize:'vertical'}}
+                onFocus={e=>e.target.style.borderColor=tweaks.accent+'66'} onBlur={e=>e.target.style.borderColor='var(--border)'}/>
+            </div>
+            <button type="submit" style={{padding:'11px 28px',background:tweaks.accent,color:'#07090f',border:'none',borderRadius:999,fontFamily:'var(--font)',fontWeight:700,fontSize:14,cursor:'pointer',alignSelf:'flex-start',transition:'all .2s'}}
+              onMouseEnter={e=>{e.currentTarget.style.opacity='.85';e.currentTarget.style.transform='translateY(-1px)';}} onMouseLeave={e=>{e.currentTarget.style.opacity='1';e.currentTarget.style.transform='none';}}>{t.send}</button>
+          </form>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function Footer({tweaks,lang}) {
+  return <footer style={{padding:'20px 10vw',borderTop:`1px solid ${tweaks.accent}18`,display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:8}}>
+    <span style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--muted)'}}>© 2026 {tweaks.name}</span>
+    <span style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--muted)'}}>Data Science & ML Engineering</span>
+  </footer>;
+}
+
+// ── Tweaks ────────────────────────────────────────────────────────────────
+function TweaksPanel({tweaks,setTweaks,visible}) {
+  if(!visible)return null;
+  const up=(k,v)=>setTweaks(p=>{const n={...p,[k]:v};window.parent.postMessage({type:'__edit_mode_set_keys',edits:{[k]:v}},'*');return n;});
+  return (
+    <div style={{position:'fixed',bottom:24,right:24,zIndex:9999,background:'var(--bg3)',border:'1px solid rgba(0,229,255,.3)',borderRadius:14,padding:'20px 24px',minWidth:270,boxShadow:'0 8px 40px rgba(0,0,0,.6)'}}>
+      <div style={{fontSize:13,fontWeight:600,color:'var(--accent)',marginBottom:14}}>Tweaks</div>
+      {[{k:'name',l:'Nombre'},{k:'role',l:'Rol'}].map(f=>(
+        <div key={f.k} style={{marginBottom:10}}>
+          <label style={{fontSize:10,color:'var(--muted)',display:'block',marginBottom:3}}>{f.l}</label>
+          <input value={tweaks[f.k]} onChange={e=>up(f.k,e.target.value)} style={{width:'100%',padding:'5px 9px',background:'var(--bg)',border:'1px solid var(--border)',borderRadius:4,color:'var(--text)',fontFamily:'var(--font)',fontSize:12}}/>
+        </div>
+      ))}
+      <div><label style={{fontSize:10,color:'var(--muted)',display:'block',marginBottom:5}}>Color Acento</label>
+        <div style={{display:'flex',gap:7}}>
+          {['#00e5ff','#10b981','#7c3aed','#f59e0b','#f43f5e'].map(c=>(
+            <div key={c} onClick={()=>up('accent',c)} style={{width:22,height:22,borderRadius:'50%',background:c,cursor:'pointer',border:tweaks.accent===c?'2px solid white':'2px solid transparent',transition:'border .15s'}}/>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Icons ─────────────────────────────────────────────────────────────────
+function DlIcon(){return<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>;}
+function EduIc(){return<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>;}
+function LocIc(){return<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>;}
+function BriefIc(){return<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>;}
+function LinkedInIc(){return<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2zM4 6a2 2 0 100-4 2 2 0 000 4z"/></svg>;}
+function GithubIc(){return<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>;}
+function WhatsappIc(){return<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>;}
+function InstagramIc(){return<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>;}
+
+// ── App ───────────────────────────────────────────────────────────────────
+function CenteredTitle({accent,title}){return(
+  <div style={{textAlign:'center',marginBottom:52}}>
+    <h2 style={{fontSize:'clamp(26px,4vw,42px)',fontWeight:700,color:accent,letterSpacing:'-.02em'}}>{title}</h2>
+    <div style={{width:56,height:3,background:accent,borderRadius:2,margin:'12px auto 0'}}/>
+  </div>
+);}
+
+function App() {
+  const [tweaks,setTweaks]=useState(TWEAK_DEFAULTS);
+  const [open,setOpen]=useState(false);
+  const [lang,setLang]=useState('es');
+  useEffect(()=>{document.documentElement.style.setProperty('--accent',tweaks.accent);},[tweaks.accent]);
+  useEffect(()=>{
+    const h=e=>{if(e.data?.type==='__activate_edit_mode')setOpen(true);if(e.data?.type==='__deactivate_edit_mode')setOpen(false);};
+    window.addEventListener('message',h);window.parent.postMessage({type:'__edit_mode_available'},'*');return()=>window.removeEventListener('message',h);
+  },[]);
+  return <>
+    <Nav tweaks={tweaks} lang={lang} setLang={setLang}/>
+    <Hero tweaks={tweaks} lang={lang}/>
+    <About tweaks={tweaks} lang={lang}/>
+    <Skills tweaks={tweaks} lang={lang}/>
+    <Services tweaks={tweaks} lang={lang}/>
+    <Certs tweaks={tweaks} lang={lang}/>
+    <Projects tweaks={tweaks} lang={lang}/>
+    <Contact tweaks={tweaks} lang={lang}/>
+    <Footer tweaks={tweaks} lang={lang}/>
+    <TweaksPanel tweaks={tweaks} setTweaks={setTweaks} visible={open}/>
+  </>;
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
