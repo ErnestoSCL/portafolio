@@ -240,7 +240,7 @@ const DATA={
   experience:"2+ años en Data Science & ML",
   email:"ernestosaniel123@gmail.com",phone:"+51 947 909 792",
   linkedin:"https://www.linkedin.com/in/ernesto-saniel-castro-lozano-96ba2b268",github:"https://github.com/ErnestoSCL",
-  whatsapp:"https://wa.me/51947909792",instagram:"https://www.instagram.com/lozano_sann/",cv:"#",
+  whatsapp:"https://wa.me/51947909792",instagram:"https://www.instagram.com/lozano_sann/",cv:"assets/cv/CV_Castro_Lozano_Ernesto_Saniel.pdf",
   skillGroups:[
     {title:"Machine Learning",items:[
       {name:"scikit-learn",icon:"devicon-scikitlearn-plain colored",pct:92},
@@ -418,7 +418,7 @@ function Hero({tweaks,lang}) {
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"/></svg>
             {t.view_projects}
           </a>
-          <a href={DATA.cv} style={{display:'inline-flex',alignItems:'center',gap:8,padding:'12px 28px',border:`1px solid ${tweaks.accent}55`,color:tweaks.accent,borderRadius:999,fontWeight:600,fontSize:14,transition:'all .2s'}}
+          <a href={DATA.cv} target="_blank" rel="noopener noreferrer" download style={{display:'inline-flex',alignItems:'center',gap:8,padding:'12px 28px',border:`1px solid ${tweaks.accent}55`,color:tweaks.accent,borderRadius:999,fontWeight:600,fontSize:14,transition:'all .2s'}}
             onMouseEnter={e=>e.currentTarget.style.background=`${tweaks.accent}12`} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
             <DlIcon/>{t.download}
           </a>
@@ -477,7 +477,7 @@ function About({tweaks,lang}) {
               </div>
             ))}
           </div>
-          <a href={DATA.cv} style={{display:'inline-flex',alignItems:'center',gap:8,padding:'11px 26px',border:`1px solid ${tweaks.accent}55`,color:tweaks.accent,borderRadius:999,fontWeight:600,fontSize:14,transition:'all .2s'}}
+          <a href={DATA.cv} target="_blank" rel="noopener noreferrer" download style={{display:'inline-flex',alignItems:'center',gap:8,padding:'11px 26px',border:`1px solid ${tweaks.accent}55`,color:tweaks.accent,borderRadius:999,fontWeight:600,fontSize:14,transition:'all .2s'}}
             onMouseEnter={e=>{e.currentTarget.style.background=`${tweaks.accent}12`;e.currentTarget.style.transform='translateY(-2px)';}} onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.transform='none';}}>
             <DlIcon/>{t.download}
           </a>
