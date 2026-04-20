@@ -255,7 +255,11 @@ const makeSlug = (title) => title
   .replace(/^-+|-+$/g, '');
 
 const pathSlug = window.location.pathname.replace(/^\//, '').replace(/\/$/, '');
-const projectBySlug = pathSlug ? PROJECTS_DATA.find(p => makeSlug(p.title) === pathSlug) : null;
+const projectBySlug = pathSlug ? PROJECTS_DATA.find(p => {
+  const slugEs = makeSlug(p.title);
+  const slugEn = p.title_en ? makeSlug(p.title_en) : null;
+  return pathSlug === slugEs || (slugEn && pathSlug === slugEn);
+}) : null;
 const project = projectBySlug || PROJECTS_DATA.find(p => p.id === id);
 const catColor = project ? (catColors[project.category] || '#00e5ff') : '#00e5ff';
 
@@ -300,7 +304,7 @@ function renderProject(p) {
     const relTitle = lang === 'en' ? (r.title_en || r.title) : r.title;
     const relDesc = lang === 'en' ? (r.description_en || r.description) : r.description;
     return `
-      <a href="/${makeSlug(r.title)}" style="text-decoration:none;display:block;padding:20px 22px;background:var(--bg2);border:1px solid ${rc}22;border-radius:10px;transition:all 0.2s;position:relative;overflow:hidden;"
+      <a href="/${makeSlug(lang === 'en' ? (r.title_en || r.title) : r.title)}" style="text-decoration:none;display:block;padding:20px 22px;background:var(--bg2);border:1px solid ${rc}22;border-radius:10px;transition:all 0.2s;position:relative;overflow:hidden;"
         onmouseenter="this.style.borderColor='${rc}55';this.style.transform='translateY(-3px)'"
         onmouseleave="this.style.borderColor='${rc}22';this.style.transform='none'">
         <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,${rc},${rc}44);"></div>

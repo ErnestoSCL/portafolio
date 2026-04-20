@@ -679,7 +679,8 @@ function Projects({tweaks,lang}) {
 }
 
 function ProjCard({p,tweaks,see,lang}) {
-  const slug = p.title
+  const rawTitle = lang==='en'?(p.title_en||p.title):p.title;
+  const slug = rawTitle
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')

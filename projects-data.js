@@ -2,6 +2,7 @@ const PROJECTS_DATA = [
   {
     id: 1,
     title: "TEAnimo",
+    title_en: "TEAnimo",
     category: "ML/DL",
     description: "Aplicación de tamizaje para TEA con formulario clínico, generación de informe y resultados de evaluación asistidos por ML.",
     description_en: "TEA screening platform with clinical forms, report generation, and ML-assisted evaluation results.",
@@ -25,6 +26,7 @@ const PROJECTS_DATA = [
   {
     id: 2,
     title: "Predicción de Autismo por Fusión de Embeddings",
+    title_en: "Autism Prediction via Embedding Fusion",
     category: "ML/DL",
     description: "Aplicación de predicción de autismo mediante fusión de embeddings y evaluación supervisada para apoyar decisiones de tamizaje temprano.",
     description_en: "Autism risk prediction app using embedding fusion and supervised evaluation to support early screening decisions.",
@@ -45,6 +47,7 @@ const PROJECTS_DATA = [
   {
     id: 3,
     title: "Clasificación de Cáncer Bucal",
+    title_en: "Oral Cancer Classification",
     category: "CV",
     description: "Modelo de clasificación para apoyo al tamizaje de cáncer bucal con medición de rendimiento y flujo de inferencia reproducible.",
     description_en: "Classification model for oral cancer screening support with performance tracking and a reproducible inference flow.",
@@ -65,6 +68,7 @@ const PROJECTS_DATA = [
   {
     id: 4,
     title: "Asistente de Tamizaje de Leucemia",
+    title_en: "Leukemia Screening Assistant",
     category: "ML/DL",
     description: "Asistente de apoyo al tamizaje de leucemia con monitoreo de experimentos, selección de mejor modelo y panel de métricas.",
     description_en: "Leukemia screening assistant with experiment tracking, best-model selection, and a performance dashboard.",
@@ -86,6 +90,7 @@ const PROJECTS_DATA = [
   {
     id: 5,
     title: "Predicción OSCC",
+    title_en: "OSCC Prediction",
     category: "CV",
     description: "Aplicación para predicción de carcinoma oral de células escamosas (OSCC) con análisis de rendimiento y visualización de resultados.",
     description_en: "OSCC prediction app with performance analysis and result visualization.",
@@ -106,6 +111,7 @@ const PROJECTS_DATA = [
   {
     id: 6,
     title: "PneumoVision-AI",
+    title_en: "PneumoVision-AI",
     category: "CV",
     description: "Proyecto de visión computacional para detección asistida en imágenes médicas pulmonares con enfoque en interpretación clínica.",
     description_en: "Computer vision project for assisted detection in lung medical images with a clinical-interpretation focus.",
@@ -125,6 +131,7 @@ const PROJECTS_DATA = [
   {
     id: 7,
     title: "DentalVision EDA",
+    title_en: "DentalVision EDA",
     category: "Data Eng",
     description: "Análisis exploratorio de datos para imágenes odontológicas: calidad, distribución, propiedades y revisión visual de dataset.",
     description_en: "Exploratory data analysis for dental images: quality, distribution, image properties, and visual dataset inspection.",
